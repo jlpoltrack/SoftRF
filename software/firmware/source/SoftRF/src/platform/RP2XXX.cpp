@@ -308,9 +308,11 @@ static void RP2xxx_setup()
   SerialOutput.setFIFOSize(255);
   SerialOutput.begin(SERIAL_OUT_BR, SERIAL_OUT_BITS);
 
+#if SOC_GPIO_PIN_GNSS_RX != SOC_UNUSED_PIN
   Serial_GNSS_In.setRX(SOC_GPIO_PIN_GNSS_RX);
   Serial_GNSS_In.setTX(SOC_GPIO_PIN_GNSS_TX);
   Serial_GNSS_In.setFIFOSize(255);
+#endif
 
   SPI1.setRX(SOC_GPIO_PIN_MISO);
   SPI1.setTX(SOC_GPIO_PIN_MOSI);
@@ -561,7 +563,9 @@ static void RP2xxx_fini(int reason)
   pinMode(SOC_GPIO_PIN_ANT_RXTX, INPUT);
 #endif
 
+#if SOC_GPIO_PIN_GNSS_RX != SOC_UNUSED_PIN
   Serial_GNSS_In.end();
+#endif
   SerialOutput.end();
   USBSerial.end();
 
@@ -917,7 +921,11 @@ static void RP2xxx_SPI_begin()
 
 static void RP2xxx_swSer_begin(unsigned long baud)
 {
+#if SOC_GPIO_PIN_GNSS_RX != SOC_UNUSED_PIN
   Serial_GNSS_In.begin(baud);
+#else
+  (void)baud;
+#endif
 }
 
 static void RP2xxx_swSer_enableRx(boolean arg)
