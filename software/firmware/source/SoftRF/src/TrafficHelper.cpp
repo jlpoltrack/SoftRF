@@ -34,6 +34,52 @@ traffic_by_dist_t traffic_by_dist[MAX_TRACKING_OBJECTS];
 
 static int8_t (*Alarm_Level)(ufo_t *, ufo_t *);
 
+#if defined(PICO_LR2021_ADSB)
+static void Traffic_Debug_ADSB_USB(ufo_t *fop)
+{
+  if (hw_info.model != SOFTRF_MODEL_ADSB_PICO ||
+      (fop->protocol != RF_PROTOCOL_ADSB_1090 &&
+       fop->protocol != RF_PROTOCOL_ADSB_UAT)) {
+    return;
+  }
+
+  char icao[7];
+  char callsign[sizeof(fop->callsign) + 1];
+
+  snprintf(icao, sizeof(icao), "%06lX", (unsigned long)(fop->addr & 0x00FFFFFF));
+
+  memcpy(callsign, fop->callsign, sizeof(fop->callsign));
+  callsign[sizeof(fop->callsign)] = 0;
+
+  for (int i = sizeof(fop->callsign) - 1; i >= 0; i--) {
+    if (callsign[i] == 0 || callsign[i] == ' ') {
+      callsign[i] = 0;
+    } else {
+      break;
+    }
+  }
+
+  Serial.print(F("ADSB,ICAO="));
+  Serial.print(icao);
+  Serial.print(F(",CALL="));
+  Serial.print(callsign[0] ? callsign : "-");
+  Serial.print(F(",LAT="));
+  Serial.print(fop->latitude, 6);
+  Serial.print(F(",LON="));
+  Serial.print(fop->longitude, 6);
+  Serial.print(F(",ALT_M="));
+  Serial.print((long) fop->altitude);
+  Serial.print(F(",SPD_KT="));
+  Serial.print((long) fop->speed);
+  Serial.print(F(",CRS="));
+  Serial.print((long) fop->course);
+  Serial.print(F(",VS="));
+  Serial.print((long) fop->vs);
+  Serial.print(F(",RSSI="));
+  Serial.println((int) fop->rssi);
+}
+#endif /* PICO_LR2021_ADSB */
+
 /*
  * No any alarms issued by the firmware.
  * Rely upon high-level flight management software.
@@ -420,6 +466,9 @@ void ParseData()
       fo.rssi = RF_last_rssi;
       Traffic_Update(&fo);
       Traffic_Add(&fo);
+#if defined(PICO_LR2021_ADSB)
+      Traffic_Debug_ADSB_USB(&fo);
+#endif /* PICO_LR2021_ADSB */
     }
 }
 

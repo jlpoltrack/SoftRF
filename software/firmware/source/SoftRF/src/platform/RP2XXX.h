@@ -372,7 +372,9 @@ struct rst_info {
 #define EXCLUDE_MPL3115A2        //  -    kb
 #define EXCLUDE_NRF905           //  -    kb
 #define EXCLUDE_UATM             //  -    kb
+#if !defined(PICO_LR2021_ADSB)
 #define EXCLUDE_MAVLINK          //  -    kb
+#endif /* PICO_LR2021_ADSB */
 //#define EXCLUDE_EGM96          //  -    kb
 //#define EXCLUDE_SOUND
 

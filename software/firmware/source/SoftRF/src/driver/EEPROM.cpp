@@ -108,7 +108,9 @@ void EEPROM_defaults()
                                               hw_info.model == SOFTRF_MODEL_POCKET ?
                                               AIRCRAFT_TYPE_PARAGLIDER :
                                               AIRCRAFT_TYPE_GLIDER;
-  eeprom_block.field.settings.txpower       = hw_info.model == SOFTRF_MODEL_ES ?
+  eeprom_block.field.settings.txpower       = hw_info.model == SOFTRF_MODEL_ADSB_PICO ?
+                                              RF_TX_POWER_OFF :
+                                              hw_info.model == SOFTRF_MODEL_ES ?
                                               RF_TX_POWER_OFF :
                                               hw_info.model == SOFTRF_MODEL_HAM ?
                                               RF_TX_POWER_LOW : RF_TX_POWER_FULL;
@@ -165,7 +167,7 @@ void EEPROM_defaults()
   eeprom_block.field.settings.nmea_out   = NMEA_BLUETOOTH;
 #else
   eeprom_block.field.settings.nmea_out   = hw_info.model == SOFTRF_MODEL_ADSB_PICO ?
-                                           NMEA_UART :
+                                           NMEA_OFF :
                                            hw_info.model == SOFTRF_MODEL_BADGE    ||
                                            hw_info.model == SOFTRF_MODEL_CARD     ||
                                            hw_info.model == SOFTRF_MODEL_COZY     ||

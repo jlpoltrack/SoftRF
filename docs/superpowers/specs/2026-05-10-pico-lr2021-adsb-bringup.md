@@ -28,12 +28,14 @@
 ## 5. ADS-B reception
 
 - Connect a 1090 MHz antenna (a tuned dipole or commercial ADS-B antenna).
-- USB CDC log should show DF17 packet activity (look for `cb_cnt` ticks in the receive callback or the existing radiolib debug lines).
+- USB CDC log should show decoded ADS-B updates in this form:
+  `ADSB,ICAO=A1B2C3,CALL=N123AB,LAT=37.618900,LON=-122.375000,ALT_M=3050,SPD_KT=142,CRS=274,VS=0,RSSI=-82`.
 - Cross-check with a separate ADS-B receiver if possible.
 
 ## 6. MAVLink output (UART0 → ArduPilot)
 
 - Connect GP0 (TX) to ArduPilot's serial RX, and a common GND.
+- Optionally connect ArduPilot TX to GP1 if you want SoftRF to see autopilot heartbeats.
 - In Mission Planner / QGroundControl, configure that serial as `ADSB` protocol at the matching baud rate (default `SERIAL_OUT_BR`; check `SoftRF.h` if uncertain).
 - Expected: `ADSB_VEHICLE` MAVLink messages visible in Mission Planner's traffic display, populated with received aircraft.
 
@@ -47,4 +49,4 @@
 - TX is implemented (TX_LF on DIO6) but not exercised by the ADS-B sniffer use case.
 - No GNSS, battery, or button on this board.
 - USB CDC stays free for the SoftRF debug log; user may also use it as a secondary data port if SerialOutput is not enough.
-- `SOFTRF_MODEL_ADSB_PICO` defaults RF protocol to ADS-B 1090 and `nmea_out` to UART. There is no MAVLink-protocol-specific EEPROM field; selecting the data protocol on the UART output (NMEA / GDL90 / D1090 / MAVLink) is done via the SoftRF web/serial settings interface.
+- `SOFTRF_MODEL_ADSB_PICO` defaults RF protocol to ADS-B 1090, disables RF TX power, and leaves NMEA/GDL90/D1090 UART output off so MAVLink is not mixed with text/binary non-MAVLink output on UART0.

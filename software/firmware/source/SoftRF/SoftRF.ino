@@ -196,11 +196,18 @@ void setup()
       Serial.begin(57600);
     }
     MAVLink_setup();
-    ThisAircraft.aircraft_type = AIRCRAFT_TYPE_UAV;  
+    ThisAircraft.aircraft_type = AIRCRAFT_TYPE_UAV;
   }  else
 #endif /* EXCLUDE_MAVLINK */
   {
-    hw_info.gnss = GNSS_setup();
+#if !defined(EXCLUDE_MAVLINK)
+    if (hw_info.model == SOFTRF_MODEL_ADSB_PICO) {
+      hw_info.gnss = GNSS_MODULE_NONE;
+    } else
+#endif /* EXCLUDE_MAVLINK */
+    {
+      hw_info.gnss = GNSS_setup();
+    }
     ThisAircraft.aircraft_type = settings->aircraft_type;
   }
   ThisAircraft.protocol = settings->rf_protocol;
@@ -379,6 +386,8 @@ void shutdown(int reason)
 void normal()
 {
   bool success;
+  bool valid_fix = isValidFix();
+  bool receiver_only = hw_info.model == SOFTRF_MODEL_ADSB_PICO;
 
   Baro_loop();
 
@@ -386,10 +395,18 @@ void normal()
   AHRS_loop();
 #endif /* ENABLE_AHRS */
 
-  GNSS_loop();
+  if (!receiver_only) {
+    GNSS_loop();
+  }
+
+#if !defined(EXCLUDE_MAVLINK)
+  if (receiver_only) {
+    PickMAVLinkFix();
+  }
+#endif /* EXCLUDE_MAVLINK */
 
   ThisAircraft.timestamp = now();
-  if (isValidFix()) {
+  if (valid_fix) {
     ThisAircraft.latitude  = gnss.location.lat();
     ThisAircraft.longitude = gnss.location.lng();
     ThisAircraft.altitude  = gnss.altitude.meters();
@@ -421,18 +438,18 @@ void normal()
   success = true;
 #endif
 
-  if (success && isValidFix()) ParseData();
+  if (success && (valid_fix || receiver_only)) ParseData();
 
 #if defined(ENABLE_TTN)
   TTN_loop();
 #endif
 
-  if (isValidFix()) {
+  if (valid_fix || receiver_only) {
     Traffic_loop();
   }
 
   if (isTimeToDisplay()) {
-    if (isValidFix()) {
+    if (valid_fix) {
       LED_DisplayTraffic();
     } else {
       LED_Clear();
@@ -446,6 +463,11 @@ void normal()
     NMEA_Export();
     GDL90_Export();
     D1090_Export();
+#if !defined(EXCLUDE_MAVLINK)
+    if (receiver_only) {
+      MAVLinkShareTraffic();
+    }
+#endif /* EXCLUDE_MAVLINK */
 
     ExportTimeMarker = millis();
   }
