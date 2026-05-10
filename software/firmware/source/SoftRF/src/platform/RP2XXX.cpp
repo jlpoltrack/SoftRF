@@ -339,7 +339,10 @@ static void RP2xxx_setup()
   digitalWrite(SOC_GPIO_PIN_ANT_RXTX, HIGH);
 #endif
 
-#if defined(ARDUINO_RASPBERRY_PI_PICO)
+#if defined(PICO_LR2021_ADSB)
+  RP2xxx_board = RP2040_PICO_LR2021;
+  hw_info.model = SOFTRF_MODEL_ADSB_PICO;
+#elif defined(ARDUINO_RASPBERRY_PI_PICO)
   RP2xxx_board = RP2040_RPIPICO;
 #if !defined(EXCLUDE_WIFI) && !defined(ESPHOSTSPI)
   WiFi.setPins(PIN_SPI0_SS, D26, D24, D20, &SPI0);
@@ -350,7 +353,7 @@ static void RP2xxx_setup()
 #elif defined(ARDUINO_RASPBERRY_PI_PICO_2W)
   RP2xxx_board = rp2040.isPicoW() ? RP2350_RPIPICO_2W : RP2350_RPIPICO_2;
   hw_info.model = SOFTRF_MODEL_STANDALONE;
-#endif /* ARDUINO_RASPBERRY_PI_PICO */
+#endif /* PICO_LR2021_ADSB / ARDUINO_RASPBERRY_PI_PICO */
 
   RP2xxx_board = (SoC->getChipId() == 0xcf516424) ?
                   RP2040_WEACT : RP2xxx_board;
