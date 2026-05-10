@@ -70,6 +70,7 @@ enum RP2xxx_board_id {
   RP2040_WEACT,
   RP2350_RPIPICO_2,
   RP2350_RPIPICO_2W,
+  RP2040_PICO_LR2021,
 };
 
 struct rst_info {
@@ -82,7 +83,79 @@ struct rst_info {
   uint32_t depc;
 };
 
-#if defined(ARDUINO_GENERIC_RP2040)
+#if defined(PICO_LR2021_ADSB)
+
+/* Override SerialOutput so MAVLink emission goes out UART0 (GP0/GP1).        */
+/* Default for RP2XXX maps SerialOutput=Serial2; this board has no UART1     */
+/* peripheral wired, and the user wants UART0 free for ArduPilot MAVLink.    */
+#undef  SerialOutput
+#define SerialOutput            Serial1
+
+/* Console RX/TX — these are repurposed for MAVLink (SerialOutput pins).     */
+#define SOC_GPIO_PIN_CONS_RX    ( 1u) // GP1, UART0 RX
+#define SOC_GPIO_PIN_CONS_TX    ( 0u) // GP0, UART0 TX
+
+/* No on-board GNSS receiver. */
+#define SOC_GPIO_PIN_GNSS_RX    SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_GNSS_TX    SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_GNSS_PPS   SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_GNSS_RST   SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_GNSS_SBY   SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_GNSS_FON   SOC_UNUSED_PIN
+
+/* Built-in SPI0 (unused) */
+#define SOC_GPIO_PIN_MOSI0      (19u)
+#define SOC_GPIO_PIN_MISO0      (16u)
+#define SOC_GPIO_PIN_SCK0       (18u)
+#define SOC_GPIO_PIN_SS0        (17u)
+
+/* SPI1 → LR2021 (16 MHz max) */
+#define SOC_GPIO_PIN_MOSI       (11u)
+#define SOC_GPIO_PIN_MISO       (12u)
+#define SOC_GPIO_PIN_SCK        (10u)
+#define SOC_GPIO_PIN_SS         (13u)
+#define RadioSPI                SPI1
+
+/* NRF905 — unused on this board */
+#define SOC_GPIO_PIN_TXE        SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_CE         SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_PWR        SOC_UNUSED_PIN
+
+/* LR2021 control */
+#define SOC_GPIO_PIN_RST        ( 7u) // LR2021 NRESET
+#define SOC_GPIO_PIN_BUSY       ( 8u) // LR2021 BUSY
+#define SOC_GPIO_PIN_DIO1       ( 6u) // LR2021 DIO9 (board-labeled "IRQ"); used as IRQ
+
+/* RF antenna switching is driven internally by the LR2021 chip via its own  */
+/* DIO5..DIO8. Host MCU does not drive any antenna-switch line.              */
+#define SOC_GPIO_PIN_ANT_RXTX   SOC_UNUSED_PIN
+
+/* I2C0 / I2C1 — unused */
+#define SOC_GPIO_PIN_SDA        SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_SCL        SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_SDA1       SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_SCL1       SOC_UNUSED_PIN
+
+/* On-board status LED on GP23 */
+#define SOC_GPIO_PIN_LED        (23u)
+#define SOC_GPIO_PIN_STATUS     (23u)
+#define SOC_GPIO_PIN_BUTTON     SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_BUZZER     SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_BATTERY    SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_VBUS       SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_VSYS       SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_PS         SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_CYW43_EN   SOC_UNUSED_PIN
+
+#define SOC_GPIO_RADIO_LED_RX   SOC_UNUSED_PIN
+#define SOC_GPIO_RADIO_LED_TX   SOC_UNUSED_PIN
+
+#define SOC_GPIO_PIN_USBH_DP    SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_USBH_DN    SOC_UNUSED_PIN
+
+#define SOC_ADC_VOLTAGE_DIV     (1.0)
+
+#elif defined(ARDUINO_GENERIC_RP2040)
 
 /* Console, I/O SLOT only */
 #define SOC_GPIO_PIN_CONS_RX  (5u)
