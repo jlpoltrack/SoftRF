@@ -4873,6 +4873,32 @@ static const Module::RfSwitchMode_t rfswitch_table_seeed_pro[] = {
     LR2021::MODE_END_OF_TABLE,
 };
 
+/*
+ * RP2040 + LR2021 ADS-B sniffer (SOFTRF_MODEL_ADSB_PICO).
+ * The LR2021 chip drives DIO5..DIO8 itself based on its current state;
+ * the radiolib LR2021 override of setRfSwitchTable translates this
+ * truth-table into per-DIO RF_SWITCH_CONFIG bitmaps sent to the chip.
+ *
+ * Mirrors the user's reference RF switch config:
+ *   DIO5 = RX_HF, DIO6 = TX_LF,
+ *   DIO7 = RX_HF | TX_HF, DIO8 = TX_HF.
+ */
+static const uint32_t rfswitch_dio_pins_pico_lr2021[] = {
+    RADIOLIB_LR2021_DIO5, RADIOLIB_LR2021_DIO6,
+    RADIOLIB_LR2021_DIO7, RADIOLIB_LR2021_DIO8,
+    RADIOLIB_NC
+};
+
+static const Module::RfSwitchMode_t rfswitch_table_pico_lr2021[] = {
+    // mode                  DIO5  DIO6  DIO7  DIO8
+    { LR2021::MODE_STBY,  { LOW,  LOW,  LOW,  LOW  } },
+    { LR2021::MODE_RX,    { LOW,  LOW,  LOW,  LOW  } }, // RX_LF — incl. 1090 MHz
+    { LR2021::MODE_TX,    { LOW,  HIGH, LOW,  LOW  } }, // TX_LF (DIO6)
+    { LR2021::MODE_RX_HF, { HIGH, LOW,  HIGH, LOW  } }, // RX_HF (DIO5+DIO7)
+    { LR2021::MODE_TX_HF, { LOW,  LOW,  HIGH, HIGH } }, // TX_HF (DIO7+DIO8)
+    END_OF_MODE_TABLE,
+};
+
 // this function is called when a complete packet
 // is received by the module
 // IMPORTANT: this function MUST be 'void' type
@@ -5104,6 +5130,10 @@ static void lr20xx_setup()
   case SOFTRF_MODEL_CARD:
     radio_g4->irqDioNum = 8; /* DIO8 as IRQ on T1000-E PRO */
     Vtcxo = 1.6;
+    break;
+  case SOFTRF_MODEL_ADSB_PICO:
+    radio_g4->irqDioNum = 9;   /* LR2021 DIO9 as IRQ on RP2040+LR2021 board */
+    Vtcxo = 3.3;               /* SX_USE_TCXO_VOLTAGE = LR20XX_TCXO_SUPPLY_VOLTAGE_3_3 */
     break;
   case SOFTRF_MODEL_CONCORDE:
   case SOFTRF_MODEL_PRIME_MK4:
@@ -5532,6 +5562,11 @@ static void lr20xx_setup()
       // radio_g4->setRfSwitchTable(rfswitch_dio_pins_seeed_wio,
       //                            rfswitch_table_seeed_wio);
     }
+    break;
+
+  case SOFTRF_MODEL_ADSB_PICO:
+    radio_g4->setRfSwitchTable(rfswitch_dio_pins_pico_lr2021,
+                               rfswitch_table_pico_lr2021);
     break;
 
   case SOFTRF_MODEL_PRIME_MK4:
