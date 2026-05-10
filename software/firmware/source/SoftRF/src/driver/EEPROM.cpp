@@ -88,7 +88,9 @@ void EEPROM_defaults()
   eeprom_block.field.version                = SOFTRF_EEPROM_VERSION;
   eeprom_block.field.settings.mode          = hw_info.model == SOFTRF_MODEL_NANO ?
                                               SOFTRF_MODE_UAV : SOFTRF_MODE_NORMAL;
-  eeprom_block.field.settings.rf_protocol   = hw_info.model == SOFTRF_MODEL_BRACELET ||
+  eeprom_block.field.settings.rf_protocol   = hw_info.model == SOFTRF_MODEL_ADSB_PICO ?
+                                              RF_PROTOCOL_ADSB_1090 :
+                                              hw_info.model == SOFTRF_MODEL_BRACELET ||
                                               hw_info.model == SOFTRF_MODEL_CARD     ||
                                               hw_info.model == SOFTRF_MODEL_POCKET   ||
                                               hw_info.model == SOFTRF_MODEL_RUGGED ?
@@ -162,7 +164,9 @@ void EEPROM_defaults()
 #elif defined(ARDUINO_ARCH_NRF54L15CLEAN)
   eeprom_block.field.settings.nmea_out   = NMEA_BLUETOOTH;
 #else
-  eeprom_block.field.settings.nmea_out   = hw_info.model == SOFTRF_MODEL_BADGE    ||
+  eeprom_block.field.settings.nmea_out   = hw_info.model == SOFTRF_MODEL_ADSB_PICO ?
+                                           NMEA_UART :
+                                           hw_info.model == SOFTRF_MODEL_BADGE    ||
                                            hw_info.model == SOFTRF_MODEL_CARD     ||
                                            hw_info.model == SOFTRF_MODEL_COZY     ||
                                            hw_info.model == SOFTRF_MODEL_HANDHELD ||
