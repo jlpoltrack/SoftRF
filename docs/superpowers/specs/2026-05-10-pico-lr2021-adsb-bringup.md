@@ -29,7 +29,14 @@ compiler and you have a firmware with no radio driver — see step 3.
 
 ## 3. LR2021 probe
 
-- The boot log should print `INFO: LR2021 base FW version` followed by the chip firmware revision (radiolib.cpp logs this when `lr2021_probe()` succeeds), then `LR2021 RFIC is detected.`
+- The boot log should print `LR2021 RFIC is detected.` — this is the single
+  decisive line, emitted by `RF_setup()` once `lr2021_probe()` has read a valid
+  version pair over SPI.
+- Note: the `INFO: LR2021 base FW version` print inside `lr2021_probe()` is
+  wrapped in `#if 0` and never appears. Do not wait for it.
+- Nothing at boot reports the selected protocol or tuned frequency, and
+  `$PSRFC,?` cannot be used to read settings back on this board (see step 9), so
+  "is it on 1090 or 978" is not observable from the console as shipped.
 - If you see `WARNING! None of supported RFICs is detected!`, distinguish the two causes:
   - **No driver compiled in** — the firmware has no LR2021 code at all. Check with `strings SoftRF.ino.elf | grep -c -i radiolib`; a correct build reports ~200, a broken one reports 0. Cause is the `-DPICO_LR2021_ADSB` flag not reaching the compiler.
   - **Driver present, chip not answering** — check SPI1 wiring (GP10/11/12/13), RST (GP7), BUSY (GP8), and 3V3 supply to the LR2021. The chip should hold BUSY low when idle.
