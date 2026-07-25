@@ -66,6 +66,10 @@ void Traffic_Update(ufo_t *);
 bool Traffic_Add(ufo_t *);
 int  Traffic_Count(void);
 
+#if defined(PICO_LR2021_ADSB)
+void Traffic_Debug_ADSB_USB(ufo_t *);
+#endif /* PICO_LR2021_ADSB */
+
 int  traffic_cmp_by_distance(const void *, const void *);
 
 extern ufo_t fo, Container[MAX_TRACKING_OBJECTS], EmptyFO;

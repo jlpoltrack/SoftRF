@@ -95,6 +95,16 @@ struct rst_info {
 #define SOC_GPIO_PIN_CONS_RX    ( 1u) // GP1, UART0 RX
 #define SOC_GPIO_PIN_CONS_TX    ( 0u) // GP0, UART0 TX
 
+/*
+ * MAVLink, not NMEA-over-Bluetooth, is what leaves this UART. Use the rate
+ * MAVLink_setup() applies on every other platform, which is also ArduPilot's
+ * SERIALn_BAUD default. STD_OUT_BR (38400) would silently mismatch.
+ */
+#if defined(SERIAL_OUT_BR)
+#undef  SERIAL_OUT_BR
+#endif
+#define SERIAL_OUT_BR           57600
+
 /* No on-board GNSS receiver. */
 #define SOC_GPIO_PIN_GNSS_RX    SOC_UNUSED_PIN
 #define SOC_GPIO_PIN_GNSS_TX    SOC_UNUSED_PIN
@@ -409,7 +419,14 @@ struct rst_info {
 #endif /* ARDUINO_ARCH_MBED */
 
 #define USE_BASICMAC
-#if defined(ARDUINO_GENERIC_RP2040)
+/*
+ * The LR2021 is only reachable through RadioLib. Key the driver selection off
+ * the board flag as well as the FQBN: PICO_LR2021_ADSB is an opt-in variant
+ * layered onto a stock Pico FQBN, and picking one where USE_RADIOLIB stays
+ * undefined yields a firmware that compiles and boots but has no radio driver
+ * at all ("None of supported RFICs is detected!").
+ */
+#if defined(ARDUINO_GENERIC_RP2040) || defined(PICO_LR2021_ADSB)
 #define USE_RADIOLIB
 //#define USE_RADIOHEAD
 //#define EXCLUDE_LR11XX
@@ -419,12 +436,20 @@ struct rst_info {
 #define EXCLUDE_LR20XX
 #endif /* RADIOLIB_VERSION */
 #endif /* USE_RADIOLIB */
+#if defined(PICO_LR2021_ADSB)
+/*
+ * No SX1276 on this board. BasicMAC probes it first, over the same SPI1 pins
+ * the LR2021 sits on, so leaving it in risks a false positive ahead of
+ * lr2021_probe(). Matches the ESP32-S3 LR2021 platform config.
+ */
+#define EXCLUDE_SX1276
+#endif /* PICO_LR2021_ADSB */
 #define EXCLUDE_CC1101
 #define EXCLUDE_SI443X
 #define EXCLUDE_SI446X
 #define EXCLUDE_SX1231
 #define EXCLUDE_SX1280
-#endif /* ARDUINO_GENERIC_RP2040 */
+#endif /* ARDUINO_GENERIC_RP2040 || PICO_LR2021_ADSB */
 
 #define USE_TIME_SLOTS
 

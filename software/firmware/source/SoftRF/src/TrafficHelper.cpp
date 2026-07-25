@@ -35,7 +35,13 @@ traffic_by_dist_t traffic_by_dist[MAX_TRACKING_OBJECTS];
 static int8_t (*Alarm_Level)(ufo_t *, ufo_t *);
 
 #if defined(PICO_LR2021_ADSB)
-static void Traffic_Debug_ADSB_USB(ufo_t *fop)
+/*
+ * Called from two places, because the two ADS-B links reach the container by
+ * different routes: UAT 978 decodes in ParseData() below, while 1090 ES has
+ * protocol_decode == NULL and is decoded out of the mode_s aircraft list in
+ * RF_loop() instead. Hooking only ParseData() would leave 1090 silent.
+ */
+void Traffic_Debug_ADSB_USB(ufo_t *fop)
 {
   if (hw_info.model != SOFTRF_MODEL_ADSB_PICO ||
       (fop->protocol != RF_PROTOCOL_ADSB_1090 &&

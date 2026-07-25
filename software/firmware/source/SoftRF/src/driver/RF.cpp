@@ -346,6 +346,9 @@ void RF_loop()
           memset(fo.raw, 0, sizeof(fo.raw));
           Traffic_Update(&fo);
           Traffic_Add(&fo);
+#if defined(PICO_LR2021_ADSB)
+          Traffic_Debug_ADSB_USB(&fo);
+#endif /* PICO_LR2021_ADSB */
         }
       }
     }
