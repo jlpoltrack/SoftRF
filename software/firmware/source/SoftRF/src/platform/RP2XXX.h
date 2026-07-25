@@ -146,16 +146,25 @@ struct rst_info {
 #define SOC_GPIO_PIN_SDA1       SOC_UNUSED_PIN
 #define SOC_GPIO_PIN_SCL1       SOC_UNUSED_PIN
 
-/* On-board status LED on GP23 */
-#define SOC_GPIO_PIN_LED        (23u)
-#define SOC_GPIO_PIN_STATUS     (23u)
-#define SOC_GPIO_PIN_BUTTON     SOC_UNUSED_PIN
+/*
+ * Host is a stock Raspberry Pi Pico (non-W), so the fixed-function pins are the
+ * Pico's own: GP25 on-board LED, GP23 SMPS power-save control, GP24 VBUS sense,
+ * GP29 VSYS/3 sense. GP23 is NOT an LED -- driving it only switches the
+ * RT6150 between PFM and PWM. Kept literal rather than PIN_LED so the block is
+ * valid under both the rpipico and generic FQBNs.
+ *
+ * SOC_GPIO_PIN_LED is the NeoPixel ring data line, not the status LED; there is
+ * no ring on this board.
+ */
+#define SOC_GPIO_PIN_LED        SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_STATUS     (25u) // on-board LED, active HIGH
+#define SOC_GPIO_PIN_BUTTON     SOC_UNUSED_PIN // BOOTSEL, via USE_BOOTSEL_BUTTON
 #define SOC_GPIO_PIN_BUZZER     SOC_UNUSED_PIN
-#define SOC_GPIO_PIN_BATTERY    SOC_UNUSED_PIN
-#define SOC_GPIO_PIN_VBUS       SOC_UNUSED_PIN
-#define SOC_GPIO_PIN_VSYS       SOC_UNUSED_PIN
-#define SOC_GPIO_PIN_PS         SOC_UNUSED_PIN
-#define SOC_GPIO_PIN_CYW43_EN   SOC_UNUSED_PIN
+#define SOC_GPIO_PIN_BATTERY    SOC_UNUSED_PIN // set to VSYS to monitor the rail
+#define SOC_GPIO_PIN_VBUS       (24u)
+#define SOC_GPIO_PIN_VSYS       (29u)
+#define SOC_GPIO_PIN_PS         (23u)
+#define SOC_GPIO_PIN_CYW43_EN   SOC_UNUSED_PIN // non-W: no CYW43
 
 #define SOC_GPIO_RADIO_LED_RX   SOC_UNUSED_PIN
 #define SOC_GPIO_RADIO_LED_TX   SOC_UNUSED_PIN
