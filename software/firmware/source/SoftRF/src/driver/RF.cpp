@@ -200,6 +200,22 @@ byte RF_setup(void)
       default:                    p = &legacy_proto_desc; break;
     }
 
+#if defined(PICO_LR2021_ADSB)
+    /*
+     * Nothing else reports which link the radio actually came up on, and
+     * $PSRFC,? is the only other way to read it back. Print it once at boot so
+     * "is it on 1090 or 978" is observable rather than inferred. The frequency
+     * plan is live by now -- rf_chip->setup() above calls RF_FreqPlan.setPlan().
+     */
+    Serial.print(F("Protocol: "));
+    Serial.print(p->name);
+    Serial.print(F(" ("));
+    Serial.print(settings->rf_protocol);
+    Serial.print(F("), Rx frequency: "));
+    Serial.print(RF_FreqPlan.getChanFrequency(0) / 1000000.0, 3);
+    Serial.println(F(" MHz"));
+#endif /* PICO_LR2021_ADSB */
+
     RF_timing         = p->tm_type;
 
     ts                = &RF_Time_Slots;

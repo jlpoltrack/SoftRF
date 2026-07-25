@@ -1551,6 +1551,48 @@ void GNSSTimeSync()
   }
 }
 
+#if defined(PICO_LR2021_ADSB) && defined(USE_NMEA_CFG)
+/*
+ * $PSRFC over the USB CDC console.
+ *
+ * PickGNSSFix() -- the only caller of NMEA_Process_SRF_SKV_Sentences() -- never
+ * runs on this board, because there is no GNSS and normal() therefore skips
+ * GNSS_loop(). Without this the firmware has no settings channel at all: no web
+ * UI (EXCLUDE_WIFI), no external SPI flash for /settings.json, and switching
+ * between 1090 ES and UAT 978 would mean editing EEPROM_defaults() and
+ * reflashing.
+ *
+ * Deliberately reads the USB FIFO only. PickGNSSFix() would also consume
+ * SerialOutput, which on this board is the MAVLink UART -- parsing that as NMEA
+ * would fight read_mavlink() over the same bytes.
+ */
+void PickConsoleCfg()
+{
+  if (SoC->USB_ops == NULL) {
+    return;
+  }
+
+  while (SoC->USB_ops->available() > 0) {
+    int c = SoC->USB_ops->read();
+
+    if (c < 0) {
+      break;
+    }
+
+    if (!isPrintable(c) && c != '\r' && c != '\n') {
+      continue;
+    }
+
+    /* Route the $PSRFC,? reply and any echo back out the USB console */
+    C_NMEA_Source = NMEA_USB;
+
+    if (gnss.encode(c)) {
+      NMEA_Process_SRF_SKV_Sentences();
+    }
+  }
+}
+#endif /* PICO_LR2021_ADSB && USE_NMEA_CFG */
+
 void PickGNSSFix()
 {
   bool isValidSentence = false;

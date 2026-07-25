@@ -13,14 +13,34 @@ arduino-cli compile \
   software/firmware/source/SoftRF/SoftRF.ino
 ```
 
-A correct build is ~268 KB. If you get ~219 KB, the flag did not reach the
+A correct build is ~266 KB. If you get ~219 KB, the flag did not reach the
 compiler and you have a firmware with no radio driver — see step 3.
+
+**Status: verified on hardware 2026-07-25** (RP2040, DEV.ID d35a9833, rp2040
+core 5.6.0). Radio detected, both bands tune, settings channel works. Actual
+reception not yet confirmed — see step 5.
 
 ## 1. Flash
 
-- Hold BOOTSEL on the Pico, plug in USB.
-- Drag `/tmp/softrf-pico-lr2021/SoftRF.ino.uf2` onto the `RPI-RP2` mass-storage volume.
-- Pico reboots automatically.
+Prebuilt image: `software/firmware/binaries/RP2040/SoftRF/SoftRF-firmware-v1.9.1-Pico-LR2021-ADSB.uf2`.
+
+**Sanity-check before flashing** — a driverless build is silent, not noisy:
+
+```
+strings <image>.uf2 | grep -xc LR2021     # 1 = driver present, 0 = broken
+```
+
+Two ways in:
+
+- **BOOTSEL** — hold BOOTSEL while plugging in USB, copy the `.uf2` onto the
+  `RPI-RP2` volume. Always works, including when the running firmware is dead.
+- **`arduino-cli upload -p <port> --fqbn rp2040:rp2040:rpipico --input-dir <dir>`**
+  — uses the 1200-baud touch to reboot into BOOTSEL. Only works while the
+  running firmware is healthy enough to service USB; on a firmware that hangs in
+  `setup()` it fails with `No drive to deploy.` and you must use BOOTSEL.
+
+Flashing a program image does **not** clear the emulated EEPROM, so settings
+survive reflashes. Use `flash_nuke.uf2` to force defaults back.
 
 ## 2. USB CDC console
 
@@ -34,9 +54,26 @@ compiler and you have a firmware with no radio driver — see step 3.
   version pair over SPI.
 - Note: the `INFO: LR2021 base FW version` print inside `lr2021_probe()` is
   wrapped in `#if 0` and never appears. Do not wait for it.
-- Nothing at boot reports the selected protocol or tuned frequency, and
-  `$PSRFC,?` cannot be used to read settings back on this board (see step 9), so
-  "is it on 1090 or 978" is not observable from the console as shipped.
+- The next line reports the link actually in use, so "is it on 1090 or 978" is
+  directly observable:
+
+```
+EEPROM version: 97
+LR2021 RFIC is detected.
+Protocol: ES (3), Rx frequency: 1090.000 MHz
+WARNING! Barometric pressure sensor is NOT detected.
+
+SoftRF Lego Edition Power-on Self Test
+
+Built-in components:
+RADIO   : PASS
+GNSS    : FAIL
+```
+
+  `GNSS: FAIL` and the barometer warning are expected — neither exists on this
+  board. The banner says "Lego Edition" because `DEFAULT_SOFTRF_MODEL` for
+  RP2XXX is `SOFTRF_MODEL_LEGO` and the POST name table has no entry for
+  `SOFTRF_MODEL_ADSB_PICO`; cosmetic only.
 - If you see `WARNING! None of supported RFICs is detected!`, distinguish the two causes:
   - **No driver compiled in** — the firmware has no LR2021 code at all. Check with `strings SoftRF.ino.elf | grep -c -i radiolib`; a correct build reports ~200, a broken one reports 0. Cause is the `-DPICO_LR2021_ADSB` flag not reaching the compiler.
   - **Driver present, chip not answering** — check SPI1 wiring (GP10/11/12/13), RST (GP7), BUSY (GP8), and 3V3 supply to the LR2021. The chip should hold BUSY low when idle.
@@ -67,8 +104,30 @@ There is no web UI on this target (`EXCLUDE_WIFI`), so use `$PSRFC` on the USB
 CDC console. Protocol indices come from `protocol.h`: `3` = ADS-B 1090 ES,
 `4` = ADS-B UAT 978.
 
-- Send the current settings query first, then re-send the sentence with field 3
-  changed to `4`. Confirm with the `Protocol = 4` echo, then reboot.
+Query current settings (checksum required — TinyGPS++ rejects unchecksummed
+sentences, so `encode()` never completes and the parser never runs):
+
+```
+$PSRFC,?*47
+```
+
+Verified reply on this board, straight from defaults:
+
+```
+$PSRFC,1,0,3,1,1,1,2,2,2,1,0,1,1,0,0,0,0,0,0*48
+      │ │ │                 └ 14: nmea_out = 0 (NMEA_OFF)
+      │ │ └ 3: protocol = 3 (ADS-B 1090 ES)     7: txpower = 2 (RF_TX_POWER_OFF)
+      │ └ 2: mode = 0 (SOFTRF_MODE_NORMAL)
+      └ 1: PSRFC version
+```
+
+To switch to UAT 978, resend with field 3 = `4`. Settings are stored and the
+board reboots itself. Both directions verified on hardware:
+
+```
+$PSRFC,1,0,4,1,1,1,2,2,2,1,0,1,1,0,0,0,0,0,0*4F   ->  Protocol: UAT (4), Rx frequency:  978.000 MHz
+$PSRFC,1,0,3,1,1,1,2,2,2,1,0,1,1,0,0,0,0,0,0*48   ->  Protocol: ES (3),  Rx frequency: 1090.000 MHz
+```
 - The RF switch table needs no change: 978 MHz is below the 1.5 GHz threshold,
   so it uses the same LF RX path as 1090.
 - UAT is a US-only datalink. Outside the US there will be nothing to hear.
@@ -93,6 +152,15 @@ CDC console. Protocol indices come from `protocol.h`: `3` = ADS-B 1090 ES,
 - TX is implemented (TX_LF on DIO6) but not exercised by the ADS-B sniffer use case.
 - No GNSS, battery, or button on this board.
 - USB CDC stays free for the SoftRF debug log; user may also use it as a secondary data port if SerialOutput is not enough.
+- `setup()` waits up to 4 s for USB CDC before touching any peripheral. This is
+  deliberate: arduino-pico services TinyUSB from `yield()`/`delay()`, so
+  anything that stalls in `setup()` also stops enumeration and the board never
+  appears as a serial port at all. With no display or LED on this board, the
+  console is the only diagnostic channel — do not remove the wait.
+- I2C is compiled out when the board declares no SDA/SCL. Passing
+  `SOC_UNUSED_PIN` (255) to arduino-pico's `Wire.setSDA()/setSCL()` is not
+  harmless: validity is tested as `(1LL << pin) & mask`, and a 64-bit shift by
+  255 is undefined behaviour, so the pin can be accepted rather than rejected.
 - `SOFTRF_MODEL_ADSB_PICO` defaults RF protocol to ADS-B 1090, disables RF TX power, and leaves NMEA/GDL90/D1090 UART output off so MAVLink is not mixed with text/binary non-MAVLink output on UART0.
 - Own position is never populated on this board (no GNSS, and the autopilot's
   position is not copied back into `ThisAircraft`). `ADSB_VEHICLE` carries

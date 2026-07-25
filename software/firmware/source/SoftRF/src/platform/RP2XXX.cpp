@@ -324,8 +324,18 @@ static void RP2xxx_setup()
   SPI1.setCS(SOC_GPIO_PIN_SS);
 #endif /* ARDUINO_RASPBERRY_PI_PICO or ARDUINO_RASPBERRY_PI_PICO_W */
 
+#if SOC_GPIO_PIN_SDA != SOC_UNUSED_PIN && SOC_GPIO_PIN_SCL != SOC_UNUSED_PIN
   Wire.setSCL(SOC_GPIO_PIN_SCL);
   Wire.setSDA(SOC_GPIO_PIN_SDA);
+#else
+  /*
+   * No I2C on this board. Passing SOC_UNUSED_PIN (255) is not harmless: the
+   * arduino-pico validity test is `(1LL << pin) & valid_mask`, and a 64-bit
+   * shift by 255 is undefined behaviour, so the pin may be accepted rather
+   * than rejected -- after which Wire.begin() would call gpio_set_function()
+   * on a nonexistent GPIO.
+   */
+#endif
 #endif /* ARDUINO_ARCH_MBED */
 
 #if SOC_GPIO_PIN_GNSS_RST != SOC_UNUSED_PIN
@@ -938,11 +948,13 @@ static byte RP2xxx_Display_setup()
   byte rval = DISPLAY_NONE;
 
 #if defined(USE_OLED)
+#if SOC_GPIO_PIN_SDA != SOC_UNUSED_PIN && SOC_GPIO_PIN_SCL != SOC_UNUSED_PIN
   Wire.begin();
   /* I2C transaction @ SSD1306_OLED_I2C_ADDR is a part of OLED_setup() */
   Wire.beginTransmission(SSD1306_OLED_I2C_ADDR + 1);
   if (Wire.endTransmission() != 0)
     rval = OLED_setup();
+#endif /* SOC_GPIO_PIN_SDA / SCL */
 #endif /* USE_OLED */
 
   return rval;

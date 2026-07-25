@@ -153,6 +153,23 @@ void setup()
 {
   rst_info *resetInfo;
 
+#if defined(PICO_LR2021_ADSB)
+  /*
+   * Let the host finish USB enumeration before any peripheral is touched.
+   *
+   * arduino-pico services TinyUSB from yield()/delay(), so anything that stalls
+   * in setup() also stops enumeration: the board never appears as a serial port
+   * and there is no console to report what went wrong. Spinning on delay() here
+   * costs nothing on a healthy boot and keeps the board diagnosable on a sick
+   * one. This board has no display or LED to fall back on.
+   */
+  {
+    uint32_t deadline = millis() + 4000;
+    while (!Serial && millis() < deadline) { delay(10); }
+    delay(250);
+  }
+#endif /* PICO_LR2021_ADSB */
+
   hw_info.soc = SoC_setup(); // Has to be very first procedure in the execution order
 
   resetInfo = (rst_info *) SoC->getResetInfoPtr();
@@ -399,6 +416,12 @@ void normal()
   if (!receiver_only) {
     GNSS_loop();
   }
+#if defined(PICO_LR2021_ADSB) && defined(USE_NMEA_CFG)
+  else {
+    /* GNSS_loop() is where $PSRFC is normally parsed; keep a settings channel */
+    PickConsoleCfg();
+  }
+#endif /* PICO_LR2021_ADSB && USE_NMEA_CFG */
 
 #if !defined(EXCLUDE_MAVLINK)
   if (receiver_only) {

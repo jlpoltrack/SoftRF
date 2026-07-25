@@ -67,6 +67,9 @@ void GNSS_loop       (void);
 void GNSS_fini       (void);
 void GNSSTimeSync    (void);
 void PickGNSSFix     (void);
+#if defined(PICO_LR2021_ADSB) && defined(USE_NMEA_CFG)
+void PickConsoleCfg  (void);
+#endif /* PICO_LR2021_ADSB && USE_NMEA_CFG */
 int LookupSeparation (float, float);
 
 extern TinyGPSPlus gnss;
