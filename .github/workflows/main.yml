@@ -33,11 +33,12 @@ jobs:
             'esp32:esp32:esp32h2',
             'esp32:esp32:esp32p4',
             'STM32:stm32:Nucleo_64',
-            'STMicroelectronics:stm32:GenF1',
+            'STM32:stm32:GenF1',
+            #'STMicroelectronics:stm32:GenF1',
             'STMicroelectronics:stm32:GenWL:pnum=GENERIC_WLE5CCUX',
             'STMicroelectronics:stm32:GenWL:pnum=GENERIC_WL55CCUX',
             'raspberry',
-            'energia:cc13xx:LAUNCHXL_CC1310',
+            #'energia:cc13xx:LAUNCHXL_CC1310',
             'CubeCell:CubeCell:CubeCell-GPS',
             'CubeCell:CubeCell:CubeCell-Board-PRO',
             'adafruit:nrf52:pca10056',
@@ -58,6 +59,7 @@ jobs:
             'SiliconLabs:silabs:nano_matter:protocol_stack=ble_arduino',
             'WCH:ch32v:CH32V30x_EVT',
             #'nrf54l15clean:nrf54l15clean:nrf54l15dk_pca10156',
+            #'nrf54l15clean:nrf54l15clean:xiao_nrf54lm20b',
             'nrf54l15clean:nrf54l15clean:xiao_nrf54l15'
           ]
 
@@ -66,8 +68,9 @@ jobs:
       ARDUINO_CLI_VERSION: 0.34.2
       ARDUINO_BLE_VERSION: 1.4.1
       ENERGIA_IDE_VERSION: 1.8.10E23
-      NIM_BLE_VERSION:     2.3.6
+      NIM_BLE_VERSION:     2.5.0
       # NIM_BLE_VERSION:   master
+      NIM_BLE_VERSION_1G:  1.4.3
       TINYUSB_VERSION:     3.4.0
       BOARD:               ${{ matrix.board }}
       PINS_ARDUINO:        pins_arduino.h
@@ -182,6 +185,7 @@ jobs:
           if [[ "$BOARD" =~ "esp32:esp32:esp32s3" ]]; then
             arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json" --save-prefs ;
             arduino --install-boards esp32:esp32:2.0.17 ;
+            # arduino --install-boards esp32:esp32:3.3.11 ;
             arduino --board $BOARD --save-prefs ;
             arduino --pref "custom_CPUFreq=esp32s3_80"                 --save-prefs ;
             arduino --pref "custom_DebugLevel=esp32s3_none"            --save-prefs ;
@@ -193,6 +197,14 @@ jobs:
             arduino --pref "custom_PSRAM=esp32s3_enabled"              --save-prefs ;
             arduino --pref "custom_PartitionScheme=esp32s3_default_8MB" --save-prefs ;
             arduino --pref "custom_UploadSpeed=esp32s3_921600"         --save-prefs ;
+            # wget https://github.com/h2zero/NimBLE-Arduino/archive/refs/tags/${NIM_BLE_VERSION}.tar.gz ;
+            # tar xzf ${NIM_BLE_VERSION}.tar.gz ;
+            # rm ${NIM_BLE_VERSION}.tar.gz ;
+            # mv NimBLE-Arduino-${NIM_BLE_VERSION} $HOME/Arduino/libraries/ ;
+            wget https://github.com/h2zero/NimBLE-Arduino/archive/refs/tags/${NIM_BLE_VERSION_1G}.tar.gz ;
+            tar xzf ${NIM_BLE_VERSION_1G}.tar.gz ;
+            rm ${NIM_BLE_VERSION_1G}.tar.gz ;
+            mv NimBLE-Arduino-${NIM_BLE_VERSION_1G} $HOME/Arduino/libraries/ ;
             cd $GITHUB_WORKSPACE ;
           fi
           if [[ "$BOARD" =~ "esp32:esp32:esp32c3" ]]; then
@@ -210,7 +222,7 @@ jobs:
           fi
           if [[ "$BOARD" =~ "esp32:esp32:esp32c5" ]]; then
             arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json" --save-prefs ;
-            arduino --install-boards esp32:esp32:3.3.8 ;
+            arduino --install-boards esp32:esp32:3.3.11 ;
             arduino --board $BOARD --save-prefs ;
             arduino --pref "custom_CPUFreq=esp32c5_80"                 --save-prefs ;
             arduino --pref "custom_DebugLevel=esp32c5_none"            --save-prefs ;
@@ -226,6 +238,10 @@ jobs:
             tar xzf ${NIM_BLE_VERSION}.tar.gz ;
             rm ${NIM_BLE_VERSION}.tar.gz ;
             mv NimBLE-Arduino-${NIM_BLE_VERSION} $HOME/Arduino/libraries/ ;
+            # cd $HOME/.arduino15/packages/esp32/hardware/esp32/3.3.10 ;
+            # wget https://github.com/lucasssvaz/arduino-esp32/commit/bca210127d6456f3873464265f9901bc436ae0f1.patch ;
+            # cat bca210127d6456f3873464265f9901bc436ae0f1.patch | tail -15 | patch -p1 ;
+            # rm bca210127d6456f3873464265f9901bc436ae0f1.patch ;
             cd $GITHUB_WORKSPACE ;
           fi
           #if [[ "$BOARD" =~ "esp32:esp32:esp32c6" ]]; then
@@ -289,7 +305,7 @@ jobs:
           fi
           if [[ "$BOARD" =~ "esp32:esp32:esp32p4" ]]; then
             arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json" --save-prefs ;
-            arduino --install-boards esp32:esp32:3.3.8 ;
+            arduino --install-boards esp32:esp32:3.3.11 ;
             arduino --board $BOARD --save-prefs ;
             arduino --pref "custom_ChipVariant=esp32p4_prev3"          --save-prefs ;
             arduino --pref "custom_CPUFreq=esp32p4_40"                 --save-prefs ;
@@ -303,10 +319,10 @@ jobs:
             arduino --pref "custom_PartitionScheme=esp32p4_no_fs"      --save-prefs ;
             arduino --pref "custom_UploadSpeed=esp32p4_921600"         --save-prefs ;
             arduino --install-library esp-lib-utils,ESP32_IO_Expander,ESP32_Display_Panel,lvgl:8.4.0 ;
-            # cd $HOME/.arduino15/packages/esp32/hardware/esp32/3.3.8 ;
-            # wget https://github.com/espressif/arduino-esp32/commit/73ef1e6ad3655275a3b597a04e365525b0ccd393.patch ;
-            # cat 73ef1e6ad3655275a3b597a04e365525b0ccd393.patch | patch -p1 ;
-            # rm 73ef1e6ad3655275a3b597a04e365525b0ccd393.patch ;
+            # cd $HOME/.arduino15/packages/esp32/hardware/esp32/3.3.10 ;
+            # wget https://github.com/lucasssvaz/arduino-esp32/commit/bca210127d6456f3873464265f9901bc436ae0f1.patch ;
+            # cat bca210127d6456f3873464265f9901bc436ae0f1.patch | tail -15 | patch -p1 ;
+            # rm bca210127d6456f3873464265f9901bc436ae0f1.patch ;
             # sed -i "s\echo '-DARDUINO_CORE_BUILD'\echo -DARDUINO_CORE_BUILD\g" platform.txt ;
             cd $GITHUB_WORKSPACE ;
           fi
@@ -321,6 +337,13 @@ jobs:
               arduino --pref "custom_usb=Nucleo_64_CDCgen"         --save-prefs ;
               arduino --pref "custom_xserial=Nucleo_64_none"       --save-prefs ;
               arduino --pref "custom_xusb=Nucleo_64_FS"            --save-prefs ;
+            fi ;
+            if [[ "$BOARD" =~ "STM32:stm32:GenF1" ]]; then
+              arduino --pref "custom_pnum=GenF1_BLUEPILL_F103CB"   --save-prefs ;
+              arduino --pref "custom_opt=GenF1_osstd"              --save-prefs ;
+              arduino --pref "custom_rtlib=GenF1_nano"             --save-prefs ;
+              arduino --pref "custom_usb=GenF1_none"               --save-prefs ;
+              arduino --pref "custom_xserial=GenF1_generic"        --save-prefs ;
             fi ;
             cd $GITHUB_WORKSPACE ;
           fi
@@ -339,6 +362,8 @@ jobs:
               arduino --pref "custom_rtlib=GenF1_nano"             --save-prefs ;
               arduino --pref "custom_usb=GenF1_CDCgen"             --save-prefs ;
               arduino --pref "custom_xserial=GenF1_none"           --save-prefs ;
+              # arduino --pref "custom_usb=GenF1_none"             --save-prefs ;
+              # arduino --pref "custom_xserial=GenF1_generic"      --save-prefs ;
               arduino --pref "custom_xusb=GenF1_FS"                --save-prefs ;
             fi ;
             cd $GITHUB_WORKSPACE ;
@@ -403,7 +428,8 @@ jobs:
           fi
           if [[ "$BOARD" =~ "nrf54l15clean:nrf54l15clean:" ]]; then
             arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/lolren/NRF54L15-Clean-Arduino-core/refs/heads/main/package_nrf54l15clean_index.json" --save-prefs ;
-            arduino --install-boards nrf54l15clean:nrf54l15clean:0.6.90 ;
+            # arduino --pref "boardsmanager.additional.urls=https://github.com/lolren/nrf54-arduino-core/releases/download/v0.7.0/package_nrf54l15clean_index.json" --save-prefs ;
+            arduino --install-boards nrf54l15clean:nrf54l15clean:1.0.8 ;
             arduino --pref "custom_clean_cpu=xiao_nrf54l15_cpu128" --save-prefs ;
             arduino --pref "custom_clean_vpr=xiao_nrf54l15_off"    --save-prefs ;
             arduino --pref "custom_clean_zigbee=xiao_nrf54l15_off" --save-prefs ;
@@ -453,7 +479,7 @@ jobs:
           fi
           if [[ "$BOARD" =~ "rp2040:rp2040:" ]]; then
             arduino --pref "boardsmanager.additional.urls=https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json" --save-prefs ;
-            arduino --install-boards rp2040:rp2040:5.6.0 ;
+            arduino --install-boards rp2040:rp2040:6.0.0 ;
             arduino --board $BOARD --save-prefs ;
             if [[ "$BOARD" =~ "rp2040:rp2040:rpipicow" ]]; then
               arduino --pref "custom_freq=rpipicow_120"               --save-prefs ;
@@ -538,13 +564,13 @@ jobs:
             arduino-cli config init ;
             arduino-cli config add board_manager.additional_urls https://downloads.arduino.cc/packages/package_zephyr_index.json ;
             arduino-cli core update-index ;
-            arduino-cli core install arduino:zephyr_main@0.55.0 ;
+            arduino-cli core install arduino:zephyr_main@0.55.2 ;
             # arduino-cli board attach -b $BOARD ;
             wget https://github.com/facchinm/ArduinoBLE/archive/refs/heads/zephyr_hci.zip ;
             unzip zephyr_hci.zip ;
             rm zephyr_hci.zip ;
             mv ArduinoBLE-zephyr_hci $HOME/Arduino/libraries/ ;
-            # cd $HOME/.arduino15/packages/arduino/hardware/zephyr_main/0.55.0 ;
+            # cd $HOME/.arduino15/packages/arduino/hardware/zephyr_main/0.56.0 ;
             # sed -i "s\nano33ble.upload.maximum_size=98304\nano33ble.upload.maximum_size=786432\g" boards.txt ;
             cd $GITHUB_WORKSPACE ;
           fi

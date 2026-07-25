@@ -558,6 +558,7 @@ static byte ublox_version() {
             // uBlox 7  - page 153 : https://www.u-blox.com/sites/default/files/products/documents/u-blox7-V14_ReceiverDescriptionProtocolSpec_%28GPS.G7-SW-12001%29_Public.pdf
             // uBlox M8 - page 300 : https://www.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_%28UBX-13003221%29_Public.pdf
 
+#if !defined(EXCLUDE_LOG_GNSS_VERSION)
             Serial.print(F("INFO: GNSS module HW version: "));
             Serial.println((char *) &GNSSbuf[30]);
 
@@ -570,6 +571,7 @@ static byte ublox_version() {
               Serial.println((char *) &GNSSbuf[i]);
             }
 #endif
+#endif /* EXCLUDE_LOG_GNSS_VERSION */
 
             if (GNSSbuf[33] == '4')
               rval = GNSS_MODULE_U6;
@@ -1354,6 +1356,7 @@ byte GNSS_setup() {
 
   if (hw_info.model == SOFTRF_MODEL_PRIME_MK2 ||
       hw_info.model == SOFTRF_MODEL_PRIME_MK3 ||
+      hw_info.model == SOFTRF_MODEL_PRIME_MK4 ||
       hw_info.model == SOFTRF_MODEL_UNI       ||
       hw_info.model == SOFTRF_MODEL_BADGE     ||
       hw_info.model == SOFTRF_MODEL_ACADEMY   ||
@@ -1365,6 +1368,7 @@ byte GNSS_setup() {
       hw_info.model == SOFTRF_MODEL_ECO       ||
       hw_info.model == SOFTRF_MODEL_INK       ||
       hw_info.model == SOFTRF_MODEL_CARD      ||
+      hw_info.model == SOFTRF_MODEL_CARD_MK2  ||
       hw_info.model == SOFTRF_MODEL_COZY      ||
       hw_info.model == SOFTRF_MODEL_HANDHELD  ||
       hw_info.model == SOFTRF_MODEL_GIZMO     ||
@@ -1376,6 +1380,8 @@ byte GNSS_setup() {
       hw_info.model == SOFTRF_MODEL_LABUBU    ||
       hw_info.model == SOFTRF_MODEL_CONCORDE  ||
       hw_info.model == SOFTRF_MODEL_RUGGED    ||
+      hw_info.model == SOFTRF_MODEL_RETRO_MK2 ||
+      hw_info.model == SOFTRF_MODEL_STYLUS    ||
       hw_info.model == SOFTRF_MODEL_AIRVENTURE)
   {
     // power on by wakeup call

@@ -88,6 +88,7 @@ enum stm32_board_id {
   STM32_ACSIP_ST50H,   /* a.k.a. "RAK3172-SiP", RFO_HP, 32 MHz TCXO */
   STM32_RAK_3172_EB,   /* RFO_HP, 32 MHz XTAL (10 ppm) */
   STM32_LILYGO_T3_1_0, /* RFO_HP, 32 MHz XTAL - V1.0 25-10-13 */
+  STM32_EBYTE_E80_900MBL_02,
 };
 
 enum stm32_boot_action {
@@ -171,6 +172,7 @@ typedef struct stm32_backup_struct {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -  1 kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -  2 kb
 #define EXCLUDE_EGM96            //  - 16 kb
 #define USE_SERIAL_DEEP_SLEEP    //  + 12 kb
@@ -202,6 +204,11 @@ typedef struct stm32_backup_struct {
 
 /* Secondary target ("Blue pill") */
 #elif defined(ARDUINO_BLUEPILL_F103CB)
+
+#undef  LED_STATE_ON
+#define LED_STATE_ON          LOW
+
+#if defined(USBCON)
 
 #define Serial_GNSS_In        Serial2
 #define Serial_GNSS_Out       Serial_GNSS_In
@@ -240,6 +247,7 @@ typedef struct stm32_backup_struct {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -  1 kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -  2 kb
 #define EXCLUDE_UATM             //  -    kb
 #define EXCLUDE_MAVLINK          //  -    kb
@@ -260,6 +268,88 @@ typedef struct stm32_backup_struct {
 //#define WITH_SI4X32
 
 //#define USE_TIME_SLOTS
+
+#else
+
+#define Serial_GNSS_In        Serial3
+#define Serial_GNSS_Out       Serial_GNSS_In
+#define UATSerial             Serial1
+#define SerialOutput          Serial1
+
+#define SOC_ADC_VOLTAGE_DIV   1
+#define VREFINT               1200  // mV, STM32F103x8 datasheet value
+
+#include "iomap/Ebyte_E80_900MBL_02.h"
+
+#define EXCLUDE_WIFI
+#define EXCLUDE_ETHERNET
+#define EXCLUDE_CC13XX
+#define EXCLUDE_TEST_MODE
+#define EXCLUDE_WATCHOUT_MODE
+
+//#define EXCLUDE_GNSS_UBLOX
+#define EXCLUDE_GNSS_SONY
+#define EXCLUDE_GNSS_MTK
+#define EXCLUDE_GNSS_GOKE
+#define EXCLUDE_GNSS_AT65
+#define EXCLUDE_GNSS_UC65
+#define EXCLUDE_GNSS_AG33
+#define EXCLUDE_LOG_GNSS_VERSION
+
+/* Component                         Cost */
+/* -------------------------------------- */
+//#define USE_OLED               //  +3.5 kb
+#define EXCLUDE_OLED_BARO_PAGE
+#define EXCLUDE_OLED_049
+#define USE_NMEA_CFG             //  +2.5 kb
+#define EXCLUDE_BMP180           //  -  1 kb
+#define EXCLUDE_BMP280           //  -  2 kb
+#define EXCLUDE_BME680           //  -    kb
+#define EXCLUDE_BME280AUX        //  -    kb
+#define EXCLUDE_MPL3115A2        //  -  1 kb
+#define EXCLUDE_SPA06            //  -    kb
+#define EXCLUDE_NRF905           //  -  2 kb
+#define EXCLUDE_UATM             //  -    kb
+//#define EXCLUDE_MAVLINK        //  -  2 kb
+#define EXCLUDE_EGM96            //  - 16 kb
+#define EXCLUDE_LED_RING         //  -    kb
+#define EXCLUDE_STATUS_LED
+#define EXCLUDE_SOUND
+#define EXCLUDE_LK8EX1
+#define EXCLUDE_IMU
+#define EXCLUDE_MAG
+//#define EXCLUDE_TRAFFIC_FILTER_EXTENSION
+//#define EXCLUDE_AIR7           //  -1.8 kb
+#define EXCLUDE_AIR6
+
+#define EXCLUDE_SX12XX
+#define EXCLUDE_SX1276
+#define USE_RADIOLIB
+#define EXCLUDE_LR11XX
+
+//#define EXCLUDE_LR20XX
+//#define EXCLUDE_OGNTP
+#define EXCLUDE_P3I
+//#define EXCLUDE_FANET
+//#define EXCLUDE_ES1090
+#define EXCLUDE_UAT978
+#define ENABLE_ADSL
+
+#define EXCLUDE_CC1101
+#define EXCLUDE_SI443X
+#define EXCLUDE_SI446X
+#define EXCLUDE_SX1231
+#define EXCLUDE_SX1280
+
+#define USE_TIME_SLOTS
+
+/* trade performance for flash memory usage (-4 Kb) */
+#define cosf(x)                 cos  ((double) (x))
+#define sinf(x)                 sin  ((double) (x))
+//#define sqrtf(x)              sqrt ((double) (x))
+//#define atan2f(y,x)           atan2((double) (y), (double) (x))
+
+#endif /* USBCON */
 
 #elif defined(ARDUINO_GENERIC_WLE5CCUX)
 
@@ -298,6 +388,7 @@ typedef struct stm32_backup_struct {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -  1 kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -  2 kb
 #define EXCLUDE_UATM             //  -    kb
 #define EXCLUDE_MAVLINK          //  -    kb
@@ -362,6 +453,7 @@ typedef struct stm32_backup_struct {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -  1 kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -  2 kb
 #define EXCLUDE_UATM             //  -    kb
 #define EXCLUDE_MAVLINK          //  -    kb
@@ -429,6 +521,7 @@ typedef struct stm32_backup_struct {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -  1 kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -  2 kb
 #define EXCLUDE_UATM             //  -    kb
 #define EXCLUDE_MAVLINK          //  -    kb

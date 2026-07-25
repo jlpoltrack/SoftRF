@@ -193,6 +193,8 @@ static inline color_t uni_Color(uint8_t r, uint8_t g, uint8_t b) {
                                 SOC_GPIO_PIN_BPIPW_STATUS :             \
                                hw_info.model == SOFTRF_MODEL_GIZMO     ?\
                                 SOC_GPIO_PIN_M2_LED :                   \
+                               hw_info.model == SOFTRF_MODEL_PRIME_MK4 ?\
+                                SOC_GPIO_PIN_1W_LED :                   \
                                hw_info.model == SOFTRF_MODEL_NANO    && \
                                hw_info.revision == 1                   ?\
                                 SOC_GPIO_PIN_ELRS_LED :                 \
@@ -212,6 +214,8 @@ static inline color_t uni_Color(uint8_t r, uint8_t g, uint8_t b) {
                                   (hw_info.revision >= 8 ?                \
                                     SOC_GPIO_PIN_TBEAM_V08_PPS :          \
                                     SOC_UNUSED_PIN) :                     \
+                                (hw_info.model == SOFTRF_MODEL_PRIME_MK4 ?\
+                                  SOC_GPIO_PIN_1W_GNSS_PPS :              \
                                 (hw_info.model == SOFTRF_MODEL_MIDI ?     \
                                   SOC_GPIO_PIN_HELTRK_GNSS_PPS :          \
                                 (hw_info.model == SOFTRF_MODEL_ECO ?      \
@@ -223,7 +227,7 @@ static inline color_t uni_Color(uint8_t r, uint8_t g, uint8_t b) {
                                 (hw_info.model == SOFTRF_MODEL_STANDALONE && \
                                  hw_info.revision == STD_EDN_REV_WT99P4C5 ?\
                                   SOC_GPIO_PIN_P4_GNSS_PPS :              \
-                                  SOC_UNUSED_PIN)))))))
+                                  SOC_UNUSED_PIN))))))))
 
 #define SOC_GPIO_PIN_BUZZER   (hw_info.model == SOFTRF_MODEL_PRIME_MK2 ? \
                                 SOC_UNUSED_PIN :                         \
@@ -386,6 +390,7 @@ enum softrf_usb_pid {
   SOFTRF_USB_PID_GIZMO      = 0x82D9,
   SOFTRF_USB_PID_AIRVENTURE = 0x82F9,
   SOFTRF_USB_PID_CONCORDE   = 0x8343,
+  SOFTRF_USB_PID_PRIME_MK4  = 0x8366,
 };
 
 struct rst_info {
@@ -418,6 +423,7 @@ struct rst_info {
 
 #define TBD_ID                  0x46
 #define TBD_25Q32               0x4016
+#define TBD_25Q128              0x4018
 
 #define MakeFlashId(v,d)        ((v << 16) | d)
 
@@ -451,9 +457,10 @@ struct rst_info {
 #if defined(CONFIG_IDF_TARGET_ESP32S3) || defined(CONFIG_IDF_TARGET_ESP32S31)
 
 #define USE_SKYVIEW_CFG
+#define EXCLUDE_SX1276
 #define USE_RADIOLIB
 //#define EXCLUDE_LR11XX
-#define EXCLUDE_LR20XX
+//#define EXCLUDE_LR20XX
 #define EXCLUDE_CC1101
 #define EXCLUDE_SI443X
 #define EXCLUDE_SI446X
@@ -528,6 +535,7 @@ struct rst_info {
 //#define EXCLUDE_MAG
 #define EXCLUDE_BME680
 #define EXCLUDE_BME280AUX
+#define EXCLUDE_SPA06
 
 #define EXCLUDE_ETHERNET
 
@@ -613,7 +621,7 @@ extern const USB_Device_List_t supported_USB_devices[];
 #if defined(CONFIG_IDF_TARGET_ESP32C5)
 //#define EXCLUDE_BLUETOOTH
 #define USE_NIMBLE
-//#define USE_NIMBLE_V2
+#define USE_NIMBLE_V2
 //#define USE_ARDUINOBLE
 #undef EXCLUDE_SOFTRF_HEARTBEAT
 #undef EXCLUDE_TEST_MODE
@@ -622,7 +630,7 @@ extern const USB_Device_List_t supported_USB_devices[];
 #define USE_OLED
 #elif defined(CONFIG_IDF_TARGET_ESP32C6)
 #define USE_NIMBLE
-//#define USE_NIMBLE_V2
+#define USE_NIMBLE_V2
 #else
 #define USE_ARDUINOBLE
 #endif /* C6 */
@@ -640,10 +648,15 @@ extern const USB_Device_List_t supported_USB_devices[];
 #define ENABLE_RECORDER
 #define USE_SA8X8
 /* Experimental */
+#if !defined(ESP_IDF_VERSION_MAJOR) || ESP_IDF_VERSION_MAJOR < 5
 #define ENABLE_REMOTE_ID
+#endif /* ESP_IDF_VERSION_MAJOR */
 //#define EXCLUDE_VOICE_MESSAGE
 //#define USE_ARDUINOBLE
-//#define USE_NIMBLE
+#if !defined(ESP_IDF_VERSION_MAJOR) || ESP_IDF_VERSION_MAJOR < 5
+#define USE_NIMBLE
+//#define USE_NIMBLE_V2
+#endif /* ESP_IDF_VERSION_MAJOR */
 //#undef USE_BLE_MIDI
 #define USE_EPAPER
 #define EPD_ASPECT_RATIO_1C1

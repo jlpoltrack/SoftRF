@@ -45,6 +45,7 @@
 #if defined(LED_STATE_ON)
 #undef  LED_STATE_ON
 #define LED_STATE_ON            (hw_info.model == SOFTRF_MODEL_CARD     || \
+                                 hw_info.model == SOFTRF_MODEL_CARD_MK2 || \
                                  hw_info.model == SOFTRF_MODEL_HANDHELD || \
                                  hw_info.model == SOFTRF_MODEL_SOLARIS  || \
                                  hw_info.model == SOFTRF_MODEL_DECENT    ? \
@@ -79,15 +80,16 @@ enum nRF52_board_id {
   NRF52_LILYGO_TECHO_REV_1,     /* 2020-12-12 */
   NRF52_LILYGO_TECHO_REV_2,     /* 2021-3-26 */
   NRF52_LILYGO_TECHO_PLUS,      /* 2025 */
-  NRF52_LILYGO_TULTIMA,
+  NRF52_LILYGO_TIMPULSE_PLUS,
   NRF52_SEEED_T1000E,
-  NRF52_SEEED_T1000E_PRO,       /* 2026 */
+  NRF52_SEEED_WIO_L1,
+  NRF52_SEEED_T2000,
+  NRF52_SEEED_X1,
   NRF52_HELTEC_T114,
+  NRF52_HELTEC_T1,
   NRF52_ELECROW_TN_M1,
   NRF52_ELECROW_TN_M3,
   NRF52_ELECROW_TN_M6,
-  NRF52_SEEED_WIO_L1,
-  NRF52_SEEED_T2000,
 };
 
 enum nRF52_display_id {
@@ -95,7 +97,6 @@ enum nRF52_display_id {
   EP_GDEH0154D67,
   EP_GDEP015OC1,
   EP_DEPG0150BN,
-  EP_GDEY037T03,
   TFT_LH114TIF03,
 };
 
@@ -134,6 +135,7 @@ struct rst_info {
 #define DRV2605_ADDRESS       (0x5A)
 #define MPU9250_ADDRESS       (0x68)
 #define ICM20948_ADDRESS      (0x68)
+#define ICM20948_ADDRESS_ALT  (0x69)
 #define BME280_ADDRESS        (0x77)
 #define BHI260AP_ADDRESS_L    (0x28)
 #define BHI260AP_ADDRESS_H    (0x29)
@@ -141,6 +143,9 @@ struct rst_info {
 #define SC7A20H_ADDRESS_L     (0x18)
 #define SC7A20H_ADDRESS_H     (0x19)
 #define BMM350_ADDRESS        (0x14)
+#define SPA06_ADDRESS         (0x77) /* SDO = HIGH */
+#define SGM41562_ADDRESS      (0x03)
+#define LSM6DSO_ADDRESS       (0x6A)
 
 #if defined(ARDUINO_ARCH_MBED) || defined(ARDUINO_ARCH_ZEPHYR)
 #define PCF8563_SLAVE_ADDRESS (0x51)
@@ -154,12 +159,13 @@ struct rst_info {
 #define MIDI_CHANNEL_VARIO    2
 
 #include "iomap/LilyGO_TEcho.h"
-#include "iomap/LilyGO_TUltima.h"
+#include "iomap/LilyGO_TImpulse_Plus.h"
 #include "iomap/Seeed_T1000E.h"
-#include "iomap/Seeed_T1000E_Pro.h"
 #include "iomap/Seeed_T2000.h"
 #include "iomap/Seeed_Wio_L1.h"
+#include "iomap/Seeed_X1.h"
 #include "iomap/Heltec_T114.h"
+#include "iomap/Heltec_T1.h"
 #include "iomap/Elecrow_ThinkNode_M1.h"
 #include "iomap/Elecrow_ThinkNode_M3.h"
 #include "iomap/Elecrow_ThinkNode_M6.h"
@@ -175,6 +181,8 @@ struct rst_info {
                                hw_info.model == SOFTRF_MODEL_POCKET  ? SOC_GPIO_LED_M3_GREEN : \
                                hw_info.model == SOFTRF_MODEL_SOLARIS  ? SOC_GPIO_LED_M6_RED  : \
                                hw_info.model == SOFTRF_MODEL_DECENT  ? SOC_GPIO_LED_L1_GREEN : \
+                               hw_info.model == SOFTRF_MODEL_STYLUS  ? SOC_UNUSED_PIN        : \
+                               hw_info.model == SOFTRF_MODEL_CARD_MK2 ? SOC_GPIO_LED_X1_GREEN: \
                                hw_info.revision == 0 ? SOC_GPIO_LED_TECHO_REV_0_GREEN : \
                                hw_info.revision == 1 ? SOC_GPIO_LED_TECHO_REV_1_GREEN : \
                                hw_info.revision == 2 ? SOC_GPIO_LED_TECHO_REV_2_GREEN : \
@@ -184,12 +192,14 @@ struct rst_info {
                                hw_info.model == SOFTRF_MODEL_HANDHELD ? SOC_GPIO_LED_M1_BLUE : \
                                hw_info.model == SOFTRF_MODEL_POCKET   ? SOC_GPIO_LED_M3_RED  : \
                                hw_info.model == SOFTRF_MODEL_SOLARIS  ? SOC_GPIO_LED_M6_BLUE : \
+                               hw_info.model == SOFTRF_MODEL_CARD_MK2 ? SOC_GPIO_LED_X1_RED  : \
                                hw_info.revision == 0 ? SOC_GPIO_LED_TECHO_REV_0_RED : \
                                hw_info.revision == 1 ? SOC_GPIO_LED_TECHO_REV_1_RED : \
                                hw_info.revision == 2 ? SOC_GPIO_LED_TECHO_REV_2_RED : \
                                SOC_GPIO_LED_PCA10059_RED)
 
-#define SOC_GPIO_LED_BLE      (hw_info.model == SOFTRF_MODEL_POCKET ? SOC_GPIO_LED_M3_BLUE : \
+#define SOC_GPIO_LED_BLE      (hw_info.model == SOFTRF_MODEL_POCKET   ? SOC_GPIO_LED_M3_BLUE : \
+                               hw_info.model == SOFTRF_MODEL_CARD_MK2 ? SOC_GPIO_LED_X1_BLUE : \
                                hw_info.revision == 0 ? SOC_GPIO_LED_TECHO_REV_0_BLUE : \
                                hw_info.revision == 1 ? SOC_GPIO_LED_TECHO_REV_1_BLUE : \
                                hw_info.revision == 2 ? SOC_GPIO_LED_TECHO_REV_2_BLUE : \
@@ -199,8 +209,6 @@ struct rst_info {
                                SOC_GPIO_PIN_GNSS_TECHO_PPS :            \
                                hw_info.model == SOFTRF_MODEL_COZY     ? \
                                SOC_GPIO_PIN_GNSS_T114_PPS :             \
-                               hw_info.model == SOFTRF_MODEL_NEO      ? \
-                               SOC_GPIO_PIN_GNSS_TULTIMA_PPS :          \
                                hw_info.model == SOFTRF_MODEL_CARD     ? \
                                SOC_GPIO_PIN_GNSS_T1000_PPS :            \
                                hw_info.model == SOFTRF_MODEL_HANDHELD ? \
@@ -209,6 +217,8 @@ struct rst_info {
                                SOC_GPIO_PIN_GNSS_M3_PPS :               \
                                hw_info.model == SOFTRF_MODEL_SOLARIS  ? \
                                SOC_GPIO_PIN_GNSS_M6_PPS :               \
+                               hw_info.model == SOFTRF_MODEL_CARD_MK2 ? \
+                               SOC_GPIO_PIN_GNSS_X1_PPS :               \
                                hw_info.model == SOFTRF_MODEL_DECENT   ? \
                                SOC_GPIO_PIN_GNSS_L1_PPS : SOC_UNUSED_PIN)
 
@@ -271,7 +281,7 @@ struct rst_info {
  */
 #define TAKE_CARE_OF_MILLIS_ROLLOVER
 
-#define EXCLUDE_GNSS_UBLOX
+//#define EXCLUDE_GNSS_UBLOX
 #define EXCLUDE_GNSS_SONY
 #define EXCLUDE_GNSS_MTK
 //#define EXCLUDE_GNSS_GOKE     /* 'Air530' GK9501 GPS/GLO/BDS (GAL inop.) */
@@ -284,11 +294,12 @@ struct rst_info {
 //#define USE_NMEALIB              //  +  8 kb
 #define USE_NMEA_CFG               //  +    kb
 #define USE_SKYVIEW_CFG            //  +    kb
-//#define EXCLUDE_BMP180           //  -    kb
+#define EXCLUDE_BMP180             //  -  2 kb
 //#define EXCLUDE_BMP280           //  -    kb
 #define EXCLUDE_BME680             //  -    kb
 #define EXCLUDE_BME280AUX          //  -    kb
-//#define EXCLUDE_MPL3115A2        //  -    kb
+#define EXCLUDE_MPL3115A2          //  -  1 kb
+//#define EXCLUDE_SPA06            //  -  5 kb
 //#define EXCLUDE_NRF905           //  -    kb
 //#define EXCLUDE_MAVLINK          //  -    kb
 //#define EXCLUDE_UATM             //  -    kb
@@ -354,16 +365,11 @@ struct rst_info {
 //#define EXCLUDE_BHI260
 #define USE_BHI260_RAM_FW
 
-/* T-Ultima */
-#define EXCLUDE_PMU
-
 #define EXCLUDE_WIP
 
-#if !defined(EXCLUDE_WIP)
-#define USE_OLED                 //  +  6 kb
-//#define EXCLUDE_OLED_BARO_PAGE
-#define EXCLUDE_OLED_049
-#endif /* EXCLUDE_WIP */
+#define USE_OLED                 //  +  7 kb
+#define EXCLUDE_OLED_BARO_PAGE
+//#define EXCLUDE_OLED_049       //  -  2 kb
 
 /* FTD-012 data port protocol version 8 and 9 */
 #define PFLAA_EXT1_FMT  ",%d,%d,%d"
@@ -371,7 +377,7 @@ struct rst_info {
 
 #if defined(USE_PWM_SOUND)
 #define SOC_GPIO_PIN_BUZZER   (nRF52_board == NRF52_SEEED_T1000E  ? SOC_GPIO_PIN_T1000_BUZZER     : \
-                               nRF52_board == NRF52_SEEED_T1000E_PRO ? SOC_GPIO_PIN_T1KEP_BUZZER  : \
+                               nRF52_board == NRF52_SEEED_X1 ? SOC_GPIO_PIN_X1_BUZZER             : \
                                nRF52_board == NRF52_ELECROW_TN_M1 ? SOC_GPIO_PIN_M1_BUZZER        : \
                                nRF52_board == NRF52_ELECROW_TN_M3 ? SOC_GPIO_PIN_M3_BUZZER        : \
                                nRF52_board == NRF52_SEEED_WIO_L1  ? SOC_GPIO_PIN_L1_BUZZER        : \
@@ -408,7 +414,7 @@ typedef void EPD_Task_t;
 #endif /* USE_TFT */
 
 #if defined(USE_OLED)
-#define U8X8_OLED_I2C_BUS_TYPE          U8X8_SH1106_128X64_NONAME_HW_I2C
+#define U8X8_OLED_I2C_BUS_TYPE          U8X8_SSD1315_128X64_NONAME_HW_I2C
 
 extern bool nRF52_OLED_probe_func();
 

@@ -370,6 +370,7 @@ struct rst_info {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -    kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -    kb
 #define EXCLUDE_UATM             //  -    kb
 #if !defined(PICO_LR2021_ADSB)

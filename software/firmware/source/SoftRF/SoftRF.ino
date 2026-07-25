@@ -23,7 +23,7 @@
  *   ADS-B encoder C++ library is developed by yangbinbin (yangbinbin_ytu@163.com)
  *   Arduino Core for ESP32 is developed by Hristo Gochkov
  *   ESP32 BT SPP library is developed by Evandro Copercini
- *   Adafruit BMP085 library is developed by Limor Fried and Ladyada
+ *   Adafruit BMP085 library is developed by Limor Fried ( Ladyada )
  *   Adafruit BMP280 library is developed by Kevin Townsend
  *   Adafruit MPL3115A2 library is developed by Limor Fried and Kevin Townsend
  *   U8g2 monochrome LCD, OLED and eInk library is developed by Oliver Kraus
@@ -75,6 +75,7 @@
  *   QMA6100P library is developed by Tristan Alderson
  *   Arduino Core for nRF54L15 is developed by Loren Bufanu
  *   Arduino EEPROM library is developed by Jack Christensen
+ *   Adafruit SPA06-003 library is developed by Limor Fried
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -500,6 +501,16 @@ void uav()
     ThisAircraft.speed     = (the_aircraft.location.gps_vog / 100.0) / _GPS_MPS_PER_KNOT;
     ThisAircraft.hdop      = the_aircraft.location.gps_hdop;
     ThisAircraft.pressure_altitude = the_aircraft.location.baro_alt;
+
+#if !defined(EXCLUDE_EGM96)
+    /*
+     * When geoidal separation is not available - use approx. EGM96 value
+     */
+    ThisAircraft.geoid_separation = (float) LookupSeparation(
+                                              ThisAircraft.latitude,
+                                              ThisAircraft.longitude
+                                              );
+#endif /* EXCLUDE_EGM96 */
 
     RF_Transmit(RF_Encode(&ThisAircraft), true);
   }

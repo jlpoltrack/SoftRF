@@ -11,7 +11,7 @@
 // maximum number of allowed frontend calibration attempts
 #define RADIOLIB_LR2021_MAX_CAL_ATTEMPTS    (10)
 
-static const LR2021::paTableEntry_t paOptTableLf[32] = {
+static const LR2021PaTableEntry_t paOptTableLf[RADIOLIB_LR2021_PA_TABLE_LEN] = {
   { .paDutyCycle = 1, .paSlices = 1, .paVal = 8 },
   { .paDutyCycle = 2, .paSlices = 2, .paVal = 1 },
   { .paDutyCycle = 2, .paSlices = 2, .paVal = 3 },
@@ -46,7 +46,7 @@ static const LR2021::paTableEntry_t paOptTableLf[32] = {
   { .paDutyCycle = 6, .paSlices = 7, .paVal = 35 },
 };
 
-static const LR2021::paTableEntry_t paOptTableHf[32] = {
+static const LR2021PaTableEntry_t paOptTableHf[RADIOLIB_LR2021_PA_TABLE_LEN] = {
   { .paDutyCycle = 0, .paSlices = RADIOLIB_LR2021_PA_LF_SLICES_UNUSED, .paVal = -38 }, // -19
   { .paDutyCycle = 0, .paSlices = RADIOLIB_LR2021_PA_LF_SLICES_UNUSED, .paVal = -36 }, // -18
   { .paDutyCycle = 0, .paSlices = RADIOLIB_LR2021_PA_LF_SLICES_UNUSED, .paVal = -34 }, // -17
@@ -151,8 +151,18 @@ int16_t LR2021::setOutputPower(int8_t power, uint32_t rampTimeUs) {
   RADIOLIB_ASSERT(state);
   
   //! \TODO: [LR2021] how and when to configure OCP?
+
+  // poitners to default tables
+  LR2021PaTableEntry_t* defaultTables[] = { 
+    const_cast<LR2021PaTableEntry_t*>(paOptTableLf),
+    const_cast<LR2021PaTableEntry_t*>(paOptTableHf),
+  };
+
+  // if the user pointers are not set, use the appropriate (LF/HF) default table
+  LR2021PaTableEntry_t* table = this->paOptTable[this->highFreq] ? this->paOptTable[this->highFreq] : defaultTables[this->highFreq];
+  
   // update PA config
-  const LR2021::paTableEntry_t* paCfg = this->highFreq ? &paOptTableHf[power + 19] : &paOptTableLf[power + 9];
+  const LR2021PaTableEntry_t* paCfg = this->highFreq ? &table[power + 19] : &table[power + 9];
   state = setPaConfig(this->highFreq, 
     RADIOLIB_LR2021_PA_LF_MODE_FSM, 
     this->highFreq ? RADIOLIB_LR2021_PA_LF_DUTY_CYCLE_UNUSED : paCfg->paDutyCycle, 
@@ -163,6 +173,10 @@ int16_t LR2021::setOutputPower(int8_t power, uint32_t rampTimeUs) {
   // set output power
   state = setTxParams(paCfg->paVal, roundRampTime(rampTimeUs));
   return(state);
+}
+
+void LR2021::setPaTable(LR2021PaTableEntry_t* table, bool highFreq) {
+  this->paOptTable[highFreq] = table;
 }
 
 int16_t LR2021::checkOutputPower(int8_t power, int8_t* clipped) {
@@ -280,10 +294,14 @@ int16_t LR2021::setSpreadingFactor(uint8_t sf, bool legacy) {
 
   RADIOLIB_CHECK_RANGE(sf, 5, 12, RADIOLIB_ERR_INVALID_SPREADING_FACTOR);
 
-  //! \TODO: [LR2021] enable SF6 legacy mode
   if(legacy && (sf == 6)) {
-    //this->mod->SPIsetRegValue(RADIOLIB_LR11X0_REG_SF6_SX127X_COMPAT, RADIOLIB_LR11X0_SF6_SX127X, 18, 18);
+    // enable SF6 legacy mode if requested
+    state = this->writeRegMemMask32(RADIOLIB_LR2021_REG_LORA_MODEM_TXRX_CFG0, (3UL << 18), (1UL << 19));
+  } else {
+    // disable it in all other cases
+    state = this->writeRegMemMask32(RADIOLIB_LR2021_REG_LORA_MODEM_TXRX_CFG0, (3UL << 18), 0);
   }
+  RADIOLIB_ASSERT(state);
 
   // update modulation parameters
   this->spreadingFactor = sf;
@@ -384,11 +402,6 @@ int16_t LR2021::setPreambleLength(size_t preambleLength) {
 }
 
 int16_t LR2021::setTCXO(float voltage, uint32_t delay) {
-  // check if TCXO is enabled at all
-  if(this->XTAL) {
-    return(RADIOLIB_ERR_INVALID_TCXO_VOLTAGE);
-  }
-
   // set mode to standby
   standby();
 
@@ -445,9 +458,9 @@ int16_t LR2021::setCRC(uint8_t len, uint32_t initial, uint32_t polynomial, bool 
   RADIOLIB_ASSERT(state);
   if(type == RADIOLIB_LR2021_PACKET_TYPE_LORA) {
     // LoRa CRC doesn't allow to set CRC polynomial, initial value, or inversion
-    this->crcTypeLoRa = len > 0;
+    this->crcTypeLoRa = len > 0 ? RADIOLIB_LR2021_LORA_CRC_ENABLED : RADIOLIB_LR2021_LORA_CRC_DISABLED;
     return(setLoRaPacketParams(this->preambleLengthLoRa, this->headerType, 
-      (this->packetType == RADIOLIB_LR2021_LORA_HEADER_IMPLICIT) ? this->implicitLen : RADIOLIB_LR2021_MAX_PACKET_LENGTH, this->crcTypeLoRa, (uint8_t)this->invertIQEnabled));
+      (this->headerType == RADIOLIB_LR2021_LORA_HEADER_IMPLICIT) ? this->implicitLen : RADIOLIB_LR2021_MAX_PACKET_LENGTH, this->crcTypeLoRa, (uint8_t)this->invertIQEnabled));
   
   } else if(type == RADIOLIB_LR2021_PACKET_TYPE_GFSK) {
     if(len > 4) {
@@ -506,7 +519,7 @@ int16_t LR2021::invertIQ(bool enable) {
 
   this->invertIQEnabled = enable;
   return(setLoRaPacketParams(this->preambleLengthLoRa, this->headerType, 
-    (this->packetType == RADIOLIB_LR2021_LORA_HEADER_IMPLICIT) ? this->implicitLen : RADIOLIB_LR2021_MAX_PACKET_LENGTH, this->crcTypeLoRa, (uint8_t)this->invertIQEnabled));
+    (this->headerType == RADIOLIB_LR2021_LORA_HEADER_IMPLICIT) ? this->implicitLen : RADIOLIB_LR2021_MAX_PACKET_LENGTH, this->crcTypeLoRa, (uint8_t)this->invertIQEnabled));
 }
 
 int16_t LR2021::setBitRate(float br) {

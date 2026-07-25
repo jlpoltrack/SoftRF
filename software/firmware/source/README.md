@@ -49,6 +49,7 @@
 1. Follow [these official instructions](https://github.com/espressif/arduino-esp32/blob/master/docs/source/installing.rst)
   to install Arduino IDE and a **certain version** of Arduino ESP32 Core<!--[**stable** Arduino ESP32 Core](https://github.com/espressif/arduino-esp32/releases/tag/1.0.5) (1.0.5)--><br>
     For **ESP32**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**1.0.5**](https://github.com/espressif/arduino-esp32/releases/tag/1.0.5)<br>
+    For **ESP32-S2**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2.0.9**](https://github.com/espressif/arduino-esp32/releases/tag/2.0.9)<br>
     For **ESP32-S3**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2.0.9**](https://github.com/espressif/arduino-esp32/releases/tag/2.0.9)<br>
     For **ESP32-C3**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2.0.9**](https://github.com/espressif/arduino-esp32/releases/tag/2.0.9)<br>
     For **ESP32-C6**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**3.0.7**](https://github.com/espressif/arduino-esp32/releases/tag/3.0.7)<br>
@@ -87,6 +88,8 @@ void loop()
 8. open **SoftRF** sketch from _File_ -> _Open_ menu
 9. For **ESP32**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Board_ ->  _ESP32_ _Dev_ _Module_<br>
+    For **ESP32-S2**:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Board_ ->  _ESP32-S2_ _Dev_ _Module_<br>
     For **ESP32-S3**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Board_ ->  _ESP32-S3_ _Dev_ _Module_<br>
     For **ESP32-C3**:<br>
@@ -99,6 +102,7 @@ void loop()
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Board_ ->  _ESP32-P4_ _Dev_ _Module_<br>
 10. Select _Tools_ -> _Flash_ _Mode_ ->  _DIO_
 11. For **ESP32**:<br>
+    For **ESP32-S2**:<br>
     For **ESP32-S3**:<br>
     For **ESP32-C3**:<br>
     For **ESP32-C6**:<br>
@@ -108,14 +112,16 @@ void loop()
     For **ESP32-P4**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Flash_ _Size_ ->  _16MB_<br>
 12. For **ESP32**:<br>
+    For **ESP32-S2**:<br>
     For **ESP32-S3**:<br>
     For **ESP32-C3**:<br>
-    For **ESP32-P4**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Partition_ _Scheme_ ->  _Minimal_ _SPIFFS_<br>
     For **ESP32-C5**:<br>
     For **ESP32-C6**:<br>
+    For **ESP32-P4**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Partition_ _Scheme_ ->  _No_ _FS_ _4MB_ _(2MB_ _APP_ _x2)_<br>
 13. For **ESP32**:<br>
+    For **ESP32-S2**:<br>
     For **ESP32-S3**:<br>
     For **ESP32-C3**:<br>
     For **ESP32-C5**:<br>
@@ -124,6 +130,7 @@ void loop()
     For **ESP32-P4**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Flash_ _Frequency_ ->  _40MHz_<br>
 14. For **ESP32**:<br>
+    For **ESP32-S2**:<br>
     For **ESP32-S3**:<br>
     For **ESP32-C3**:<br>
     For **ESP32-C5**:<br>
@@ -222,9 +229,11 @@ You will need to have an ST-LINK/V2 USB adapter connected in order to put the fi
 1. Follow [these official instructions](https://github.com/stm32duino/wiki/wiki/Getting-Started)
   to install Arduino IDE and **certain version** of Arduino STM32 Core -<!-- [latest **stable** Arduino STM32 Core](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/1.9.0) (1.9.0) --><br>
     For **S76G**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**1.9.0**](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/1.9.0)<br>
+    For **STM32F103C8** "Blue Pill":&nbsp;&nbsp;&nbsp;[**1.9.0**](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/1.9.0)<br>
+    For **STM32F103C8** Ebyte E80:&nbsp;&nbsp;&nbsp;[**1.9.0**](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/1.9.0)<br>
     For **STM32WLE5**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2.4.0**](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/2.4.0)<br>
     For **STM32WL55**:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[**2.4.0**](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/2.4.0)<br>
-    For **STM32F103C8** "Blue Pill":&nbsp;&nbsp;&nbsp;[**2.4.0**](https://github.com/stm32duino/Arduino_Core_STM32/releases/tag/2.4.0)<br>
+
 2. open ``<My Documents>`` (Windows) , ``<Home>`` (Linux) or ``<Documents>`` (MacOS) directory
 3. create **Arduino** sub-directory
 4. transfer full content of **SoftRF** and **libraries** GitHub folders into the sub-directory:
@@ -254,6 +263,11 @@ You will need to have an ST-LINK/V2 USB adapter connected in order to put the fi
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _U(S)ART_ _support_ ->  _Enabled_ _(generic_ _'Serial')_<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _USB_ _support_ _(if available)_ ->  _CDC_ _(no_ _generic_ _'Serial')_<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _USB_ _speed_ _(if available)_ ->  _Low/Full_ _Speed_<br>
+    For **STM32F103C8** Ebyte E80:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Board_ ->  _Generic_ _STM32F1_ _series_<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Board_ _part_ _number_ ->  _BluePill_ _F103CB_ _(or_ _C8_ _with_ _128k)_<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _U(S)ART_ _support_ ->  _Enabled_ _(generic_ _'Serial')_<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _USB_ _support_ _(if available)_ ->  _None_<br>
 8. Select _Tools_ -> _Optimize_ ->  _Smallest_ _(-Os_ _default)_<br>
 9. Select _Tools_ -> _C_ _Runtime_ _library_ ->  _Newlib_ _Nano_ _(default)_
 10. For **S76G "Dongle"**:<br>
@@ -265,7 +279,7 @@ You will need to have an ST-LINK/V2 USB adapter connected in order to put the fi
     For **STM32WL55**:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Upload_ _method_ ->  _STM32CubeProgrammer_ _(Serial)_<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Port_ ->  ``<your Serial port device name>``<br>
-    For **S76G "SkyWatch"** or **STM32F103C8** "Blue Pill":<br>
+    For **S76G "SkyWatch"** or **STM32F103C8** "Blue Pill" or **STM32F103C8** Ebyte E80:<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Upload_ _method_ ->  _STM32CubeProgrammer_ _(SWD)_<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select _Tools_ -> _Port_ ->  ``<your ST-LINK/V2 port device name>``<br>
 11. try to build and upload using _Sketch_ -> _Upload_
@@ -451,8 +465,8 @@ As a result of the build, one program binary will become created:
 
 ## nRF54L15
 
-1. Follow [these instructions](https://github.com/lolren/NRF54L15-Clean-Arduino-core?tab=readme-ov-file#install)
-  to install Arduino IDE and [XIAO nRF54L15 Clean Arduino Core](https://github.com/lolren/NRF54L15-Clean-Arduino-core/releases) (0.6.82)
+1. Follow [these instructions](https://github.com/lolren/nrf54-arduino-core?tab=readme-ov-file#-quick-install)
+  to install Arduino IDE and [nRF54L Arduino Core](https://github.com/lolren/nrf54-arduino-core/releases) (0.9.167)
 2. open ``<My Documents>`` (Windows) , ``<Home>`` (Linux) or ``<Documents>`` (MacOS) directory
 3. create **Arduino** sub-directory
 4. transfer full content of **SoftRF** and **libraries** GitHub folders into the sub-directory:

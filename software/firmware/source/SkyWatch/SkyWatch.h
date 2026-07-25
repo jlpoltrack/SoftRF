@@ -23,8 +23,8 @@
 #include <Arduino.h>
 #endif /* ARDUINO */
 
-#define SKYWATCH_FIRMWARE_VERSION  "1.2"
-#define SKYWATCH_USB_FW_VERSION    0x0102
+#define SKYWATCH_FIRMWARE_VERSION  "1.3"
+#define SKYWATCH_USB_FW_VERSION    0x0103
 #define SKYWATCH_IDENT    "SkyWatch"
 #define WEBTOP_IDENT      "WebTop"
 #define SOFTRF_IDENT      "SoftRF"
@@ -181,6 +181,11 @@ enum
 	SOFTRF_MODEL_LABUBU,
 	SOFTRF_MODEL_CONCORDE,
 	SOFTRF_MODEL_RUGGED,
+	SOFTRF_MODEL_PRIME_MK4,
+	SOFTRF_MODEL_RETRO_MK2,
+	SOFTRF_MODEL_CARD_MK2,
+	SOFTRF_MODEL_STYLUS,
+	SOFTRF_MODEL_NANO_MK2,
 };
 
 enum
@@ -461,5 +466,7 @@ extern hardware_info_t hw_info;
 extern bool inServiceMode;
 
 extern void shutdown(const char *);
+
+#define  DO_GDL90_FF_EXT
 
 #endif /* SKYWATCH_H */

@@ -62,6 +62,10 @@ void comm_send_ch(mavlink_channel_t chan, uint8_t ch)
 #elif defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_RP2350) || \
       defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_NRF54L15CLEAN)
   Serial1.write(ch);
+#elif defined(ARDUINO_ARCH_STM32)      && \
+      defined(ARDUINO_BLUEPILL_F103CB) && \
+     !defined(USBCON)
+  Serial3.write(ch);
 #else
   Serial.write(ch);
 #endif
@@ -156,6 +160,11 @@ void read_mavlink()
       defined(ARDUINO_ARCH_NRF52) || defined(ARDUINO_ARCH_NRF54L15CLEAN)
    while (Serial1.available() > 0) {
             uint8_t ch = Serial1.read();
+#elif defined(ARDUINO_ARCH_STM32)      && \
+      defined(ARDUINO_BLUEPILL_F103CB) && \
+     !defined(USBCON)
+   while (Serial3.available() > 0) {
+            uint8_t ch = Serial3.read();
 #else
    while (Serial.available() > 0) {
             uint8_t ch = Serial.read();

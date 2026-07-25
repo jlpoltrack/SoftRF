@@ -32,6 +32,8 @@ Recommended:
 - [ ]   Uni
 - [ ]   Ham
 - [ ]   Card
+- [ ]   Concorde
+- [ ]   Retro Mark II
 - [ ]   Handheld
 - [ ]   Airventure
 - [ ]   Solaris

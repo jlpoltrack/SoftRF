@@ -175,6 +175,7 @@ byte OLED_setup() {
     rval = (hw_info.model == SOFTRF_MODEL_MINI     ? DISPLAY_OLED_HELTEC :
             hw_info.model == SOFTRF_MODEL_BRACELET ? DISPLAY_OLED_0_49   :
             hw_info.model == SOFTRF_MODEL_DECENT   ? DISPLAY_OLED_1_3    :
+            hw_info.model == SOFTRF_MODEL_STYLUS   ? DISPLAY_OLED_0_49   :
             DISPLAY_OLED_TTGO);
   }
 
@@ -449,11 +450,19 @@ const char *OLED_Aircraft_Type[] = {
   [AIRCRAFT_TYPE_PARAGLIDER] = "Paragldr",
   [AIRCRAFT_TYPE_POWERED]    = "Powered ",
   [AIRCRAFT_TYPE_JET]        = " Jet    ",
+#if defined(EXCLUDE_AIR7)
   [AIRCRAFT_TYPE_UFO]        = " UFO    ",
+#else
+  [AIRCRAFT_TYPE_GYROCOPTER] = "Gyrocptr",
+#endif /* EXCLUDE_AIR7 */
   [AIRCRAFT_TYPE_BALLOON]    = "Balloon ",
   [AIRCRAFT_TYPE_ZEPPELIN]   = "Zeppelin",
   [AIRCRAFT_TYPE_UAV]        = " UAV    ",
+#if defined(EXCLUDE_AIR7)
   [AIRCRAFT_TYPE_RESERVED]   = "Reserved",
+#else
+  [AIRCRAFT_TYPE_AIRFIELD]   = "Airfield",
+#endif /* EXCLUDE_AIR7 */
   [AIRCRAFT_TYPE_STATIC]     = " Static "
 };
 

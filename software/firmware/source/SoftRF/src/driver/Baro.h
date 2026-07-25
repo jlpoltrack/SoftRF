@@ -20,6 +20,7 @@
 #define BAROHELPER_H
 
 #define BMP280_ADDRESS_ALT    0x76 /* GY-91, SA0 is NC */
+#define SPA06_ADDRESS_ALT     0x76 /* SDO = LOW */
 
 #define VS_AVERAGING_FACTOR   3
 
@@ -36,6 +37,7 @@ enum
   BARO_MODULE_BME680,
   BARO_MODULE_BME280AUX,
   BARO_MODULE_MPL3115A2,
+  BARO_MODULE_SPA06,
 };
 
 typedef struct barochip_ops_struct {

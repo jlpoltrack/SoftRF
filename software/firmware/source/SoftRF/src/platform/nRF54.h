@@ -130,6 +130,7 @@ struct rst_info {
 #define EXCLUDE_BME680           //  -    kb
 #define EXCLUDE_BME280AUX        //  -    kb
 #define EXCLUDE_MPL3115A2        //  -    kb
+#define EXCLUDE_SPA06            //  -    kb
 #define EXCLUDE_NRF905           //  -    kb
 //#define EXCLUDE_MAVLINK        //  -    kb
 #define EXCLUDE_UATM             //  -    kb
@@ -162,6 +163,8 @@ struct rst_info {
 #if RADIOLIB_VERSION_MAJOR <= 7 && RADIOLIB_VERSION_MINOR < 6
 #define EXCLUDE_LR20XX
 #endif /* RADIOLIB_VERSION */
+//#define EXCLUDE_ES1090
+//#define EXCLUDE_UAT978
 #endif /* USE_RADIOLIB */
 #define EXCLUDE_CC1101
 #define EXCLUDE_SI443X

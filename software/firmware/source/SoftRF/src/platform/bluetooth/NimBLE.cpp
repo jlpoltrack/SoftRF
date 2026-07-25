@@ -197,6 +197,7 @@ static void ESP32_Bluetooth_setup()
                                   hw_info.model == SOFTRF_MODEL_NANO       ? "Nano Edition"       :
                                   hw_info.model == SOFTRF_MODEL_AIRVENTURE ? "Airventure Edition" :
                                   hw_info.model == SOFTRF_MODEL_CONCORDE   ? "Concorde Edition"   :
+                                  hw_info.model == SOFTRF_MODEL_PRIME_MK4  ? "Prime Mark IV"      :
                                   "Unknown";
       char SerialNum[9];
       snprintf(SerialNum, sizeof(SerialNum), "%08X", SoC->getChipId());
@@ -266,7 +267,7 @@ static void ESP32_Bluetooth_setup()
           // Serial.println("BLE failed to start legacyAdvertising");
       }
 
-#else /* USE_NIMBLE_V2 */
+#else /* CONFIG_BT_NIMBLE_EXT_ADV */
 
 #if 0
       pAdvertising->addServiceUUID(NimBLEUUID(UART_SERVICE_UUID16));
@@ -280,22 +281,23 @@ static void ESP32_Bluetooth_setup()
       BLEAdvData.setFlags(0x06);
       BLEAdvData.setCompleteServices(NimBLEUUID(UART_SERVICE_UUID16));
       BLEAdvData.setCompleteServices(NimBLEUUID(UUID16_SVC_BATTERY));
+      BLEAdvData.setName((BT_name+"-LE").c_str());
 #if defined(USE_BLE_MIDI)
       BLEAdvData.setCompleteServices(NimBLEUUID(MIDI_SERVICE_UUID));
 #endif /* USE_BLE_MIDI */
       pAdvertising->setAdvertisementData(BLEAdvData);
 #endif
-#if defined(ESP_IDF_VERSION_MAJOR) && ESP_IDF_VERSION_MAJOR >= 5
+#if defined(USE_NIMBLE_V2)
       pAdvertising->enableScanResponse(true);
       pAdvertising->setPreferredParams(0x06, 0x12);
 #else
       pAdvertising->setScanResponse(true);
       pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
       pAdvertising->setMaxPreferred(0x12);
-#endif /* ESP_IDF_VERSION_MAJOR */
+#endif /* USE_NIMBLE_V2 */
       NimBLEDevice::startAdvertising();
 
-#endif /* USE_NIMBLE_V2 */
+#endif /* CONFIG_BT_NIMBLE_EXT_ADV */
 
       BLE_Advertising_TimeMarker = millis();
     }
@@ -334,7 +336,12 @@ static void ESP32_Bluetooth_loop()
       // disconnecting
       if (!deviceConnected && oldDeviceConnected && (millis() - BLE_Advertising_TimeMarker > 500) ) {
           // give the bluetooth stack the chance to get things ready
-          pServer->startAdvertising(); // restart advertising
+#if CONFIG_BT_NIMBLE_EXT_ADV && defined(USE_NIMBLE_V2)
+          NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
+          pAdvertising->start(0, 0, 0);     // restart advertising
+#else /* CONFIG_BT_NIMBLE_EXT_ADV */
+          NimBLEDevice::startAdvertising(); // restart advertising
+#endif /* CONFIG_BT_NIMBLE_EXT_ADV */
           oldDeviceConnected = deviceConnected;
           BLE_Advertising_TimeMarker = millis();
       }

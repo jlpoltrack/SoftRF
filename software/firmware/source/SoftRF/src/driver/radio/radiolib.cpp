@@ -403,6 +403,36 @@ static const Module::RfSwitchMode_t rfswitch_table_lilygo[] = {
     { LR11x0::MODE_WIFI,   { LOW,  LOW,  LOW,  LOW  } },
     END_OF_MODE_TABLE,
 };
+
+static const uint32_t rfswitch_dio_pins_XY16EXP33[] = {
+    RADIOLIB_LR11X0_DIO5, RADIOLIB_LR11X0_DIO6,
+    RADIOLIB_LR11X0_DIO7, RADIOLIB_LR11X0_DIO8,
+    RADIOLIB_NC
+};
+
+static const Module::RfSwitchMode_t rfswitch_table_XY16EXP33_sub1g[] = {
+    // mode                  DIO5 DIO6 DIO7 DIO8
+    { LR11x0::MODE_STBY,   { LOW, LOW, LOW, LOW  } },
+    { LR11x0::MODE_TX,     { LOW, LOW, LOW, LOW  } },
+    { LR11x0::MODE_RX,     { LOW, LOW, LOW, LOW  } },
+    { LR11x0::MODE_TX_HP,  { LOW, LOW, LOW, HIGH } }, // Sub-1G DIO8 SET HIGH
+    { LR11x0::MODE_TX_HF,  { LOW, LOW, LOW, LOW  } },
+    { LR11x0::MODE_GNSS,   { LOW, LOW, LOW, HIGH } },
+    { LR11x0::MODE_WIFI,   { LOW, LOW, LOW, HIGH } },
+    END_OF_MODE_TABLE,
+};
+
+static const Module::RfSwitchMode_t rfswitch_table_XY16EXP33_2g4[] = {
+    // mode                  DIO5 DIO6  DIO7  DIO8
+    { LR11x0::MODE_STBY,   { LOW, LOW,  LOW,  LOW } },
+    { LR11x0::MODE_TX,     { LOW, LOW,  LOW,  LOW } },
+    { LR11x0::MODE_RX,     { LOW, LOW,  LOW,  LOW } },
+    { LR11x0::MODE_TX_HP,  { LOW, LOW,  LOW,  LOW } },
+    { LR11x0::MODE_TX_HF,  { LOW, LOW,  HIGH, LOW } }, // 2.4G TX DIO7 SET HIGH
+    { LR11x0::MODE_GNSS,   { LOW, LOW,  LOW,  LOW } },
+    { LR11x0::MODE_WIFI,   { LOW, HIGH, LOW,  LOW } }, // 2.4G RX DIO6 SET HIGH
+    END_OF_MODE_TABLE,
+};
 #endif /* USE_LR11XX */
 
 // this function is called when a complete packet
@@ -711,13 +741,16 @@ static void lr11xx_setup()
     } else {
       // YL320 XTAL on XR1 V1.0
       Vtcxo = 0.0f;
+#if RADIOLIB_VERSION_MAJOR >= 7 && RADIOLIB_VERSION_MINOR < 7
       radio_semtech->XTAL = true;
+#endif /* RADIOLIB_VERSION_MINOR */
     }
     break;
 
   case SOFTRF_MODEL_NEO:
   case SOFTRF_MODEL_BADGE:
   case SOFTRF_MODEL_PRIME_MK3:
+  case SOFTRF_MODEL_PRIME_MK4:
     // HPDTeK HPD-16E
     // LR1121 TCXO Voltage 2.85~3.15V
     Vtcxo = 3.0;
@@ -825,8 +858,13 @@ static void lr11xx_setup()
     rl_state = radio_semtech->beginFSK(); // start FSK mode (and disable LoRa)
 #endif
 #if USE_LR11XX
+#if RADIOLIB_VERSION_MAJOR >= 7 && RADIOLIB_VERSION_MINOR < 7
     rl_state = radio_semtech->beginGFSK(4.8, 5.0, 156.2, 16, Vtcxo);
-#endif
+#else
+    radio_semtech->tcxoVoltage = Vtcxo;
+    rl_state = radio_semtech->beginGFSK(4.8, 5.0, 156.2, 16);
+#endif /* RADIOLIB_VERSION_MINOR */
+#endif /* USE_LR11XX */
 
     switch (rl_protocol->bitrate)
     {
@@ -995,6 +1033,10 @@ static void lr11xx_setup()
   }
 #endif /* USE_LR11XX */
 
+#if defined(USE_FEM)
+  bool has_fem = (hw_info.model == SOFTRF_MODEL_PRIME_MK4) ? true : false;
+#endif /* USE_FEM */
+
   float txpow;
 
   switch(settings->txpower)
@@ -1004,21 +1046,29 @@ static void lr11xx_setup()
     /* Load regional max. EIRP at first */
     txpow = RF_FreqPlan.MaxTxPower;
 
-    if (txpow > 22) txpow = 22;
+#if defined(USE_FEM)
+    if (has_fem == true) {
+      if (txpow > 34)
+        txpow = 34;
+    } else
+#endif /* USE_FEM */
+    {
+      if (txpow > 22) txpow = 22;
 
 #if 1
-    /*
-     * Enforce Tx power limit until confirmation
-     * that LR11xx is doing well
-     * when antenna is not connected
-     */
-    if (txpow > 17)
-      txpow = 17;
+      /*
+       * Enforce Tx power limit until confirmation
+       * that LR11xx is doing well
+       * when antenna is not connected
+       */
+      if (txpow > 17)
+        txpow = 17;
 #endif
 
 #if USE_LR11XX
-    if (high && txpow > 13) txpow = 13;
+      if (high && txpow > 13) txpow = 13;
 #endif /* USE_LR11XX */
+    }
 
     break;
   case RF_TX_POWER_OFF:
@@ -1027,6 +1077,17 @@ static void lr11xx_setup()
     txpow = 2;
     break;
   }
+
+#if defined(USE_FEM)
+  if (hw_info.model == SOFTRF_MODEL_PRIME_MK4) {
+    if (high) {
+      txpow -= 34; /* CB5337CX */
+      if (txpow > 0 /* 1 ? */ ) txpow = 0 /* 1 ? */;
+    } else {
+      txpow -= 12; /* HM06S006P */
+    }
+  }
+#endif /* USE_FEM */
 
 #if USE_SX1262
   uint32_t rxe = lmic_pins.rxe == LMIC_UNUSED_PIN ? RADIOLIB_NC : lmic_pins.rxe;
@@ -1160,6 +1221,27 @@ static void lr11xx_setup()
     }
 #else
     rl_state = radio_semtech->setOutputPower(txpow, false);
+#endif /* RADIOLIB_VERSION_MINOR */
+    break;
+
+  case SOFTRF_MODEL_PRIME_MK4:
+    radio_semtech->setRfSwitchTable(rfswitch_dio_pins_XY16EXP33, high ?
+                                    rfswitch_table_XY16EXP33_2g4 :
+                                    rfswitch_table_XY16EXP33_sub1g);
+#if RADIOLIB_VERSION_MAJOR >= 7 && RADIOLIB_VERSION_MINOR > 1
+    {
+      uint8_t paSel = 0;
+      uint8_t paSupply = 0;
+      if (high) {
+        paSel = 2;
+      } else if (true || (txpow > 14)) {
+        paSel = 1;
+        paSupply = 1;
+      }
+      rl_state = radio_semtech->setOutputPower(txpow, paSel, paSupply, 0x04, 0x07, lr11xx_roundRampTime(48) - 0x03);
+    }
+#else
+    rl_state = radio_semtech->setOutputPower(txpow, high ? false : true);
 #endif /* RADIOLIB_VERSION_MINOR */
     break;
 
@@ -4814,7 +4896,9 @@ static bool lr20xx_transmit_complete = false;
 
 static uint64_t lr20xx_eui_be = 0xdeadbeefdeadbeef;
 
+#if !defined(EXCLUDE_ES1090)
 mode_s_t rl_mode_s_state;
+#endif /* EXCLUDE_ES1090 */
 
 static const uint32_t rfswitch_dio_pins_MXD8721[] = {
     RADIOLIB_LR2021_DIO5, RADIOLIB_LR2021_DIO6,
@@ -4838,32 +4922,63 @@ static const uint32_t rfswitch_dio_pins_XY16E3AXP33[] = {
 };
 
 static const Module::RfSwitchMode_t rfswitch_table_XY16E3AXP33_sub1g[] = {
-    // mode                  DIO5  DIO6 DIO7 DIO8
-    { LR2021::MODE_STBY,   { LOW,  LOW, LOW, LOW  } },
-    { LR2021::MODE_TX,     { LOW,  LOW, LOW, HIGH } }, // Sub-1G DIO8 SET HIGH
-    { LR2021::MODE_RX,     { LOW,  LOW, LOW, LOW  } }, // Sub-1G ALL DIO SET LOW
-    { LR2021::MODE_RX_HF,  { LOW,  LOW, LOW, LOW  } },
-    { LR2021::MODE_TX_HF,  { LOW,  LOW, LOW, LOW  } },
+    // mode                  DIO5 DIO6 DIO7 DIO8
+    { LR2021::MODE_STBY,   { LOW, LOW, LOW, LOW  } },
+    { LR2021::MODE_RX,     { LOW, LOW, LOW, LOW  } }, // Sub-1G ALL DIO SET LOW
+    { LR2021::MODE_TX,     { LOW, LOW, LOW, HIGH } }, // Sub-1G DIO8 SET HIGH
+    { LR2021::MODE_RX_HF,  { LOW, LOW, LOW, LOW  } },
+    { LR2021::MODE_TX_HF,  { LOW, LOW, LOW, LOW  } },
     END_OF_MODE_TABLE,
 };
 
 static const Module::RfSwitchMode_t rfswitch_table_XY16E3AXP33_2g4[] = {
     // mode                  DIO5  DIO6  DIO7  DIO8
     { LR2021::MODE_STBY,   { LOW,  LOW,  LOW,  LOW } },
-    { LR2021::MODE_TX,     { LOW,  LOW,  LOW,  LOW } },
     { LR2021::MODE_RX,     { LOW,  LOW,  LOW,  LOW } },
+    { LR2021::MODE_TX,     { LOW,  LOW,  LOW,  LOW } },
     { LR2021::MODE_RX_HF,  { LOW,  HIGH, LOW,  LOW } }, // 2.4G RX DIO6 SET HIGH
     { LR2021::MODE_TX_HF,  { LOW,  LOW,  HIGH, LOW } }, // 2.4G TX DIO7 SET HIGH
     END_OF_MODE_TABLE,
 };
 
-static const uint32_t rfswitch_dio_pins_seeed_pro[] = {
+static const uint32_t rfswitch_dio_pins_tdisplay_p4[] = {
+    RADIOLIB_NC, RADIOLIB_LR2021_DIO6, RADIOLIB_LR2021_DIO7,
+    RADIOLIB_NC, RADIOLIB_NC
+};
+
+static const Module::RfSwitchMode_t rfswitch_table_tdisplay_p4[] = {
+    // mode                  DIO5  DIO6  DIO7
+    {LR2021::MODE_STBY,    { LOW,  LOW,  LOW  } },
+    {LR2021::MODE_RX,      { LOW,  LOW,  LOW  } },
+    {LR2021::MODE_TX,      { LOW,  LOW,  LOW  } },
+    {LR2021::MODE_RX_HF,   { LOW,  HIGH, LOW  } },
+    {LR2021::MODE_TX_HF,   { LOW,  LOW,  HIGH } },
+    END_OF_MODE_TABLE,
+};
+
+static const uint32_t rfswitch_dio_pins_ELRS[] = {
+    RADIOLIB_LR2021_DIO5, RADIOLIB_LR2021_DIO6,
+    RADIOLIB_LR2021_DIO7, RADIOLIB_LR2021_DIO8,
+    RADIOLIB_NC
+};
+
+static const Module::RfSwitchMode_t rfswitch_table_ELRS[] = {
+    // mode                  DIO5  DIO6  DIO7  DIO8
+    { LR2021::MODE_STBY,   { LOW,  LOW,  LOW,  LOW  } },
+    { LR2021::MODE_RX,     { LOW,  LOW,  LOW,  HIGH } },
+    { LR2021::MODE_TX,     { LOW,  LOW,  HIGH, LOW  } },
+    { LR2021::MODE_RX_HF,  { LOW,  HIGH, LOW,  LOW  } },
+    { LR2021::MODE_TX_HF,  { HIGH, LOW,  LOW,  LOW  } },
+    END_OF_MODE_TABLE,
+};
+
+static const uint32_t rfswitch_dio_pins_seeed_x1[] = {
     RADIOLIB_NC, RADIOLIB_NC,
     RADIOLIB_NC, RADIOLIB_NC,
     RADIOLIB_NC
 };
 
-static const Module::RfSwitchMode_t rfswitch_table_seeed_pro[] = {
+static const Module::RfSwitchMode_t rfswitch_table_seeed_x1[] = {
     // mode
     { LR2021::MODE_STBY,   { } },
     { LR2021::MODE_RX,     { } },
@@ -5056,21 +5171,28 @@ static void lr20xx_setup()
 
   switch (settings->rf_protocol)
   {
+#if !defined(EXCLUDE_OGNTP)
   case RF_PROTOCOL_OGNTP:
     rl_protocol     = &ogntp_proto_desc;
     protocol_encode = &ogntp_encode;
     protocol_decode = &ogntp_decode;
     break;
+#endif /* EXCLUDE_OGNTP */
+#if !defined(EXCLUDE_P3I)
   case RF_PROTOCOL_P3I:
     rl_protocol     = &p3i_proto_desc;
     protocol_encode = &p3i_encode;
     protocol_decode = &p3i_decode;
     break;
+#endif /* EXCLUDE_P3I */
+#if !defined(EXCLUDE_FANET)
   case RF_PROTOCOL_FANET:
     rl_protocol     = &fanet_proto_desc;
     protocol_encode = &fanet_encode;
     protocol_decode = &fanet_decode;
     break;
+#endif /* EXCLUDE_FANET */
+#if !defined(EXCLUDE_ES1090)
   case RF_PROTOCOL_ADSB_1090:
     rl_protocol     = &es1090_proto_desc;
     protocol_encode = NULL;
@@ -5078,6 +5200,8 @@ static void lr20xx_setup()
 
     mode_s_init(&rl_mode_s_state);
     break;
+#endif /* EXCLUDE_ES1090 */
+#if !defined(EXCLUDE_UAT978)
   case RF_PROTOCOL_ADSB_UAT:
     rl_protocol     = &uat978_proto_desc;
     protocol_encode = &uat978_encode;
@@ -5085,6 +5209,7 @@ static void lr20xx_setup()
 
     init_fec();
     break;
+#endif /* EXCLUDE_UAT978 */
 #if defined(ENABLE_PROL)
   case RF_PROTOCOL_APRS:
     rl_protocol     = &prol_proto_desc;
@@ -5122,13 +5247,14 @@ static void lr20xx_setup()
   case SOFTRF_MODEL_ACADEMY:
     if (SoC->getChipId() == 0x36D2512E /* WCH */) {
       radio_g4->irqDioNum = 11; /* DIO11 as IRQ */
+      Vtcxo = 0.0; /* TCXO with ext. power */
     } else {
       radio_g4->irqDioNum =  8; /* DIO8 as IRQ on WIO-2021 */
+      Vtcxo = 0.0; /* XTAL */
     }
-    Vtcxo = 0.0; /* XTAL */
     break;
-  case SOFTRF_MODEL_CARD:
-    radio_g4->irqDioNum = 8; /* DIO8 as IRQ on T1000-E PRO */
+  case SOFTRF_MODEL_CARD_MK2:
+    radio_g4->irqDioNum = 8; /* DIO8 as IRQ on Seeed X1 */
     Vtcxo = 1.6;
     break;
   case SOFTRF_MODEL_ADSB_PICO:
@@ -5136,7 +5262,21 @@ static void lr20xx_setup()
     Vtcxo = 3.3;               /* SX_USE_TCXO_VOLTAGE = LR20XX_TCXO_SUPPLY_VOLTAGE_3_3 */
     break;
   case SOFTRF_MODEL_CONCORDE:
+    radio_g4->irqDioNum = 11; /* LR2021 DIO11 as IRQ */
+    Vtcxo = 3.0; /* 3.3V in TDP4 demo */
+    break;
   case SOFTRF_MODEL_PRIME_MK4:
+    radio_g4->irqDioNum = 11; /* LR2021 DIO11 as IRQ */
+    Vtcxo = 3.0;
+    break;
+  case SOFTRF_MODEL_RETRO_MK2:
+    radio_g4->irqDioNum =  9; /* DIO9 as IRQ on Ebyte E80-900MBL-02 */
+    Vtcxo = 2.2;
+    break;
+  case SOFTRF_MODEL_NANO_MK2:
+    radio_g4->irqDioNum =  9; /* DIO9 as IRQ */
+    Vtcxo = 3.3;
+    break;
   default:
     radio_g4->irqDioNum = 11; /* LR2021 DIO11 as IRQ */
     Vtcxo = 1.6;
@@ -5149,6 +5289,7 @@ static void lr20xx_setup()
   float br, fdev, bw;
   switch (rl_protocol->modulation_type)
   {
+#if !defined(EXCLUDE_FANET) || defined(ENABLE_PROL)
   case RF_MODULATION_TYPE_LORA:
 #if RADIOLIB_DEBUG_BASIC
     Serial.print(F("[LR20XX] Initializing LoRa ... "));
@@ -5213,7 +5354,9 @@ static void lr20xx_setup()
     rl_state = radio_g4->explicitHeader();
     rl_state = radio_g4->setCRC(true);
     break;
+#endif /* EXCLUDE_FANET */
 
+#if !defined(EXCLUDE_ES1090)
   case RF_MODULATION_TYPE_PPM:
 #if RADIOLIB_DEBUG_BASIC
     Serial.print(F("[LR20XX] Initializing OOK ... "));
@@ -5334,6 +5477,7 @@ static void lr20xx_setup()
 
     rl_state = radio_g4->setOokDetectionThreshold(-80); /* TODO */
     break;
+#endif /* EXCLUDE_ES1090 */
 
   case RF_MODULATION_TYPE_2FSK:
   default:
@@ -5511,6 +5655,10 @@ static void lr20xx_setup()
 #endif
   }
 
+#if defined(USE_FEM)
+  bool has_fem = (hw_info.model == SOFTRF_MODEL_PRIME_MK4) ? true : false;
+#endif /* USE_FEM */
+
   float txpow = 2;
 
   switch(settings->txpower)
@@ -5523,19 +5671,27 @@ static void lr20xx_setup()
       txpow = RF_FreqPlan.MaxTxPower;
     }
 
-    if (txpow > 22) txpow = 22;
+#if defined(USE_FEM)
+    if (has_fem == true) {
+      if (txpow > 33)
+        txpow = 33;
+    } else
+#endif /* USE_FEM */
+    {
+      if (txpow > 22) txpow = 22;
 
 #if 1
-    /*
-     * Enforce Tx power limit until confirmation
-     * that LR20xx is doing well
-     * when antenna is not connected
-     */
-    if (txpow > 17)
-      txpow = 17;
+      /*
+       * Enforce Tx power limit until confirmation
+       * that LR20xx is doing well
+       * when antenna is not connected
+       */
+      if (txpow > 17)
+        txpow = 17;
 #endif
 
-    if (high && txpow > 13) txpow = 13;
+      if (high && txpow > 13) txpow = 13;
+    }
 
     break;
   case RF_TX_POWER_OFF:
@@ -5544,11 +5700,22 @@ static void lr20xx_setup()
     break;
   }
 
+#if defined(USE_FEM)
+  if (hw_info.model == SOFTRF_MODEL_PRIME_MK4) {
+    if (high) {
+      txpow -= 34; /* CB5337CX */
+      if (txpow > 8) txpow = 8;
+    } else {
+      txpow -= 12; /* HM06S006P */
+    }
+  }
+#endif /* USE_FEM */
+
   switch (hw_info.model)
   {
-  case SOFTRF_MODEL_CARD:
-    radio_g4->setRfSwitchTable(rfswitch_dio_pins_seeed_pro,
-                               rfswitch_table_seeed_pro);
+  case SOFTRF_MODEL_CARD_MK2:
+    radio_g4->setRfSwitchTable(rfswitch_dio_pins_seeed_x1,
+                               rfswitch_table_seeed_x1);
     break;
 
   case SOFTRF_MODEL_ACADEMY:
@@ -5569,15 +5736,28 @@ static void lr20xx_setup()
                                rfswitch_table_pico_lr2021);
     break;
 
+  case SOFTRF_MODEL_CONCORDE:
+    radio_g4->setRfSwitchTable(rfswitch_dio_pins_tdisplay_p4,
+                               rfswitch_table_tdisplay_p4);
+    break;
+
   case SOFTRF_MODEL_PRIME_MK4:
     radio_g4->setRfSwitchTable(rfswitch_dio_pins_XY16E3AXP33, high ?
                                rfswitch_table_XY16E3AXP33_2g4 :
                                rfswitch_table_XY16E3AXP33_sub1g);
     break;
 
+  case SOFTRF_MODEL_RETRO_MK2:
+    /* TODO: Switchless design ? */
+    break;
+
+  case SOFTRF_MODEL_NANO_MK2:
+    radio_g4->setRfSwitchTable(rfswitch_dio_pins_ELRS,
+                               rfswitch_table_ELRS);
+    break;
+
   case SOFTRF_MODEL_BADGE:
   case SOFTRF_MODEL_PRIME_MK3:
-  case SOFTRF_MODEL_CONCORDE:
   default:
     radio_g4->setRfSwitchTable(rfswitch_dio_pins_MXD8721,
                                rfswitch_table_MXD8721);
@@ -5720,6 +5900,7 @@ static bool lr20xx_receive()
           success = true;
           break;
 
+#if !defined(EXCLUDE_ES1090)
         case RF_PROTOCOL_ADSB_1090:
         {
           struct mode_s_msg mm;
@@ -5794,6 +5975,9 @@ static bool lr20xx_receive()
           }
           break;
         }
+#endif /* EXCLUDE_ES1090 */
+
+#if !defined(EXCLUDE_UAT978)
         case RF_PROTOCOL_ADSB_UAT:
           int rs_errors;
           int frame_type;
@@ -5818,6 +6002,7 @@ static bool lr20xx_receive()
             }
           }
           break;
+#endif /* EXCLUDE_UAT978 */
 
         case RF_PROTOCOL_OGNTP:
         case RF_PROTOCOL_ADSL_860:
@@ -5860,9 +6045,11 @@ static bool lr20xx_receive()
             switch (rl_protocol->crc_type)
             {
             case RF_CHECKSUM_TYPE_GALLAGER:
+#if !defined(EXCLUDE_OGNTP)
               if (LDPC_Check((uint8_t  *) &RxBuffer[0]) == 0) {
                 success = true;
               }
+#endif /* EXCLUDE_OGNTP */
               break;
             case RF_CHECKSUM_TYPE_CRC_MODES:
 #if defined(ENABLE_ADSL)

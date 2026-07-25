@@ -19,6 +19,7 @@
 - [STM32WL55](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#stm32wl55)
 - [CH32](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#ch32)
 - [nRF54L15](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf54l15)
+- [E80-900MBL](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#e80-900mbl) (STM32F103)
 
 ## List by Model
 
@@ -26,14 +27,16 @@ Model|Instructions|Firmware folder
 ---|:---:|:---:
 [Standalone Edition](https://github.com/lyusupov/SoftRF/wiki/Standalone-Edition)|[NodeMCU](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nodemcu)<br>[ESP32-C3](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-c3)<br>[ESP32-C6](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-c6)<br>[RP2350](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#rp2350)|[NodeMCU](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/NodeMCU/SoftRF)<br>[ESP32C3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32C3/SoftRF)<br>[ESP32C6](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32C6/SoftRF)<br>[RP2350](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/RP2350/SoftRF)
 [Prime Edition Mk3](https://github.com/lyusupov/SoftRF/wiki/Prime-Edition-MkIII)|[ESP32-S3](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-s3)|[ESP32S3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32S3/SoftRF/MassStorage)
+[Prime Edition Mk2](https://github.com/lyusupov/SoftRF/wiki/Prime-Edition-MkII)|[ESP32](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32)|[ESP32](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32/SoftRF/)
 [Ham Edition](https://github.com/lyusupov/SoftRF/wiki/Ham-Edition)|[ESP32-S3](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-s3)|[ESP32S3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32S3/SoftRF/MassStorage)
 [Midi Edition](https://github.com/lyusupov/SoftRF/wiki/Midi-Edition)|[ESP32-S3](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-s3)|[ESP32S3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32S3/SoftRF/MassStorage)
 [Gizmo Edition](https://github.com/lyusupov/SoftRF/wiki/Gizmo-Edition)|[Web Flasher](https://github.com/lyusupov/SoftRF/wiki/Gizmo-Edition#quick-start)|[ESP32S3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32S3/SoftRF/OTA)
 [Airventure Edition](https://github.com/lyusupov/SoftRF/wiki/Airventure-Edition)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[Web Flasher](https://github.com/lyusupov/SoftRF/wiki/Airventure-Edition#quick-start)|[ESP32S3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32S3/SoftRF/OTA)
-[Concorde Edition](https://github.com/lyusupov/SoftRF/wiki/Concorde-Edition)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|Web Flasher|[ESP32P4](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32P4/SoftRF/Merged)
+[Concorde Edition](https://github.com/lyusupov/SoftRF/wiki/Concorde-Edition)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[ESP32-P4](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-p4)|[ESP32P4](https://github.com/user-attachments/files/27507018/SoftRF-P4_merged.zip) <!-- (https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32P4/SoftRF/Merged) -->
 [Nano Edition](https://github.com/lyusupov/SoftRF/wiki/Nano-Edition)|[ESP32-C3](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#esp32-c3)|[ESP32C3](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32C3/SoftRF)
 [Badge Edition](https://github.com/lyusupov/SoftRF/wiki/Badge-Edition)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)
-[Handheld Edition](https://github.com/lyusupov/SoftRF/wiki/Handheld-Edition)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)
+[Handheld Edition](https://github.com/lyusupov/SoftRF/wiki/Handheld-Edition)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)
+[Card Edition Mk2](https://github.com/lyusupov/SoftRF/wiki/Card-Edition-MkII)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|TBD <!--[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)-->
 [Card Edition](https://github.com/lyusupov/SoftRF/wiki/Card-Edition)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)
 [Cozy Edition](https://github.com/lyusupov/SoftRF/wiki/Cozy-Edition)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)
 [Solaris Edition](https://github.com/lyusupov/SoftRF/wiki/Solaris-Edition)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[nRF52840](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#nrf52840)|[nRF52840](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/nRF52840)
@@ -43,6 +46,7 @@ Model|Instructions|Firmware folder
 [Lego Edition](https://github.com/lyusupov/SoftRF/wiki/Lego-Edition)|[RP2040](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#rp2040)|[RP2040](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/RP2040/SoftRF)
 [Balkan Edition](https://github.com/lyusupov/SoftRF/wiki/Balkan-Edition)|[STM32WLE5](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#stm32wle5)|[STM32WLE5](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/STM32/WLE5)
 [Labubu Edition](https://github.com/lyusupov/SoftRF/wiki/Labubu-Edition)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[STM32WL55](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#stm32wl55)|[STM32WL55](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/STM32/WL55)
+[Retro Edition MkII](https://github.com/lyusupov/SoftRF/wiki/Retro-Edition-MkII)&nbsp;![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/new-icon.jpg)|[E80-900MBL](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#e80-900mbl)|[E80-900MBL](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/STM32/E80)
 [Uni Edition](https://github.com/lyusupov/SoftRF/wiki/Uni-Edition)|[CC1352R](https://github.com/lyusupov/SoftRF/wiki/Uni-Edition.-Firmware-maintenance-procedures#initial-installation)|[CC1352](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/CC13XX/CC1352)
 [Mini Edition](https://github.com/lyusupov/SoftRF/wiki/Mini-Edition)|[CubeCell](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#cubecell)|[ASR650x](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ASR650x)
 [Octave Concept](https://github.com/lyusupov/SoftRF/wiki/Octave-Concept)|[ASR6601](https://github.com/lyusupov/SoftRF/blob/master/software/firmware/binaries/README.md#asr6601)|[ASR6601](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ASR6601)
@@ -147,13 +151,15 @@ The Bootloader is capable to self-program an application firmware into the devic
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A virtual disk with a device specific label should appear in your "File manager" afterwards.<br>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **LilyGO T-Echo** the label is &nbsp; **TECHOBOOT** (or **NRF52BOOT**)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **LilyGO T-Impulse Plus**  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NRF52BOOT**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Seeed T1000-E** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T1000-E**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Seeed X1** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **X1**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Heltec T114** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **HT-n5262**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Elecrow M1**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ELECROWBOOT**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Elecrow M3**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ELECROWBOOT**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Elecrow M3**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ELECROWBOOT** (or **ThinkNodeM3**)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For **Elecrow M6** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ThinkNodeM6**<br>
 
-4. Drag the downloaded firmware file by your pointing device (mouse, trackball,...) , then drop it into **TECHOBOOT** / **NRF52BOOT** / **T1000-E** / **HT-n5262** / **ELECROWBOOT** / **ThinkNodeM6** disk. Wait until the file transfer is complete.
+4. Drag the downloaded firmware file by your pointing device (mouse, trackball,...) , then drop it into **TECHOBOOT** / **NRF52BOOT** / **T1000-E** / **X1** / **HT-n5262** / **ELECROWBOOT**  / **ThinkNodeM3** / **ThinkNodeM6** disk. Wait until the file transfer is complete.
 
 <br>
 
@@ -447,7 +453,7 @@ The Bootloader is capable to self-program an application firmware into the devic
 <br>
 
 ## ESP32-P4
-
+<!--
 1. Take ESP32 flash download tool from this location: http://www.espressif.com/en/support/download/other-tools <br>
 
 2. Download an appropriate version of SoftRF firmware from [this location](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32P4/SoftRF) and unzip the archive ; <br>
@@ -462,12 +468,18 @@ The Bootloader is capable to self-program an application firmware into the devic
 
 ![](https://github.com/lyusupov/SoftRF/raw/master/documents/images/Standalone-ESP32P4-2.jpg)
 
-
-
 6. Press **START** button and wait for completion.
 
-"Stock" devices may also require to apply full flash memory erase (use **ERASE** UI "button") prior to first flashing with SoftRF's firmware.
+"Stock" devices may also require to apply full flash memory erase (use **ERASE** UI "button") prior to first flashing with SoftRF's firmware.  -->
 
+1. Download an appropriate version of SoftRF firmware from [this location](https://github.com/user-attachments/files/27507018/SoftRF-P4_merged.zip) <!--(https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/ESP32P4/SoftRF) --> and unzip the archive ; <br>
+2. Connect the ESP32-P4 based device to your PC by means of a USB cable ; <br>
+3. Open up this website in Chrome or Edge browser: https://espressif.github.io/esptool-js/ ; <br>
+4. Install SoftRF firmware BIN file into your ESP32-P4 device. Use this picture as an illustration.
+
+<img width="790" height="926" alt="image" src="https://github.com/user-attachments/assets/2be654b5-0abe-4259-9cb9-8180c8e99b59" />
+
+<br>
 <br>
 
 ## CH32
@@ -491,5 +503,27 @@ The Bootloader is capable to self-program an application firmware into the devic
 4. Install SoftRF firmware HEX file into your nRF54L15 device. Use this picture as an illustration.
 
 <img width="800" src="https://github.com/user-attachments/assets/31b5c337-4d2b-45cc-b8d5-36bab1d92b1b" />
+
+<br>
+<br>
+
+## E80-900MBL
+
+1. Take pre-built **OpenOCD** tool for Windows from this location: https://gnutoolchains.com/arm-eabi/openocd/ and extract the archive ;
+2. Download an appropriate version of SoftRF firmware from [this location](https://github.com/lyusupov/SoftRF/tree/master/software/firmware/binaries/STM32/E80) ;
+3. Connect the SoftRF Retro Edition Mark II device to your CMSIS-DAP ( "DAPLINK" ) adapter ;
+
+![](https://github.com/lyusupov/SoftRF/blob/master/documents/images/Retro2-7.jpg)
+
+4. Connect the DAPLINK adapter to your PC by means of a USB cable ;
+5. Use Windows command line tool to execute firmware flashing procedure as follows:
+
+```
+C:\OpenOCD-20211118-0.11.0>.\bin\openocd.exe -f interface\cmsis-dap.cfg -f board\stm32f103c8_blue_pill.cfg -c "program SoftRF-firmware-v1.9.1-E80.bin 0x08000000 verify reset exit"
+```
+
+Example:<br>
+
+![](https://github.com/lyusupov/SoftRF/blob/master/documents/images/Retro2-1.jpg)
 
 <br>
